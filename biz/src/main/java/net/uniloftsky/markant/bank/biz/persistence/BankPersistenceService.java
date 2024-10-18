@@ -3,7 +3,8 @@ package net.uniloftsky.markant.bank.biz.persistence;
 import net.uniloftsky.markant.bank.biz.BankAccount;
 
 /**
- * Bank persistence service
+ * Bank persistence service.
+ * Responsible only for saving and retrieving data from the database.
  */
 public interface BankPersistenceService {
 
