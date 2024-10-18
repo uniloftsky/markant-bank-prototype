@@ -1,2 +1,2 @@
 # markant-bank-prototype
-Back-end service prototype for Banking service application
+Back-end service prototype for Banking application
