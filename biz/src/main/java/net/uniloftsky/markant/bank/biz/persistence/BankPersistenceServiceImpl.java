@@ -1,9 +1,9 @@
 package net.uniloftsky.markant.bank.biz.persistence;
 
-import net.uniloftsky.markant.bank.biz.BankAccount;
 import net.uniloftsky.markant.bank.biz.persistence.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
@@ -14,9 +14,9 @@ public class BankPersistenceServiceImpl implements BankPersistenceService {
     private AccountRepository accountRepository;
 
     @Override
-    @Transactional
-    public AccountEntity createAccount(BankAccount.AccountId accountId, long creationTimestamp) {
-        if (accountId == null) {
+    @Transactional(propagation = Propagation.MANDATORY)
+    public AccountEntity createAccount(int accountNumber, long creationTimestamp) {
+        if (accountNumber == 0) {
             throw new IllegalArgumentException("accountId cannot be null");
         }
         if (creationTimestamp <= 0) {
@@ -24,7 +24,7 @@ public class BankPersistenceServiceImpl implements BankPersistenceService {
         }
 
         AccountEntity account = new AccountEntity();
-        account.setId(accountId.toString());
+        account.setId(accountNumber);
         account.setBalance(0);
         account.setCreatedAt(creationTimestamp);
         account = accountRepository.save(account);
@@ -33,17 +33,20 @@ public class BankPersistenceServiceImpl implements BankPersistenceService {
 
     @Override
     @Transactional(readOnly = true)
-    public AccountEntity getAccount(BankAccount.AccountId accountId) throws BankPersistenceServiceException {
-        if (accountId == null) {
-            throw new IllegalArgumentException("accountId cannot be null");
-        }
+    public AccountEntity getAccount(int accountNumber) throws AccountNotFoundPersistenceServiceException {
 
-        Optional<AccountEntity> accountOptional = accountRepository.findById(accountId.toString());
+
+        Optional<AccountEntity> accountOptional = accountRepository.findById(accountNumber);
         if (accountOptional.isEmpty()) {
-            throw new AccountNotFoundPersistenceServiceException(accountId.toString());
+            throw new AccountNotFoundPersistenceServiceException("account with account number " + accountNumber + " not found");
         }
 
         return accountOptional.get();
+    }
+
+    @Override
+    public AccountEntity updateAccountBalance(int accountNumber, double newBalance, long timestamp) {
+        return null;
     }
 
     @Autowired

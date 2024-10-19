@@ -2,7 +2,6 @@ package net.uniloftsky.markant.bank.biz;
 
 import java.math.BigDecimal;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Class that represents a bank account
@@ -12,7 +11,7 @@ public final class BankAccount {
     /**
      * Account id
      */
-    private final AccountId id;
+    private final AccountNumber id;
 
     /**
      * Account balance
@@ -25,12 +24,12 @@ public final class BankAccount {
      * @param id      account id
      * @param balance account balance
      */
-    BankAccount(AccountId id, BigDecimal balance) {
+    BankAccount(AccountNumber id, BigDecimal balance) {
         this.id = id;
         this.balance = balance;
     }
 
-    public AccountId getId() {
+    public AccountNumber getId() {
         return id;
     }
 
@@ -62,33 +61,40 @@ public final class BankAccount {
     /**
      * Bank account ID
      */
-    public static final class AccountId {
+    public static final class AccountNumber {
 
         /**
-         * Account id is stored as {@link UUID}
+         * Account id is stored as a simple 10-digits integer
          */
-        private final UUID id;
+        private final int number;
 
-        AccountId(UUID id) {
-            this.id = id;
+        AccountNumber(int number) {
+            if (number > 0) {
+                throw new IllegalArgumentException("number parameter must be positive");
+            }
+            this.number = number;
+        }
+
+        int getNumber() {
+            return number;
         }
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            AccountId that = (AccountId) o;
-            return Objects.equals(id, that.id);
+            AccountNumber that = (AccountNumber) o;
+            return Objects.equals(number, that.number);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hashCode(id);
+            return Objects.hashCode(number);
         }
 
         @Override
         public String toString() {
-            return id.toString();
+            return String.valueOf(number);
         }
     }
 

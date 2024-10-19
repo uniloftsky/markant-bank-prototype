@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
  * JPA repository for Bank Account entities
  */
 @Repository
-public interface AccountRepository extends JpaRepository<AccountEntity, String> {
+public interface AccountRepository extends JpaRepository<AccountEntity, Integer> {
 }

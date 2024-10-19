@@ -13,7 +13,7 @@ public class AccountEntity {
 
     @Id
     @Column(name = "id")
-    private String id;
+    private int id;
 
     @Column(name = "balance")
     private double balance;
@@ -27,11 +27,11 @@ public class AccountEntity {
     public AccountEntity() {
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    void setId(String id) {
+    void setId(int id) {
         this.id = id;
     }
 
@@ -51,6 +51,14 @@ public class AccountEntity {
         this.createdAt = createdAt;
     }
 
+    public long getUpdatedAt() {
+        return updatedAt;
+    }
+
+    void setUpdatedAt(long updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -66,9 +74,11 @@ public class AccountEntity {
 
     @Override
     public String toString() {
-        return "BankAccountEntity{" +
-                "id=" + id +
+        return "AccountEntity{" +
+                "id='" + id + '\'' +
                 ", balance=" + balance +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
                 '}';
     }
 }

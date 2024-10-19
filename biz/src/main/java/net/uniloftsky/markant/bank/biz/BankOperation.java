@@ -10,7 +10,7 @@ import java.util.UUID;
 public final class BankOperation {
 
     private final OperationId id;
-    private final BankAccount.AccountId accountId;
+    private final BankAccount.AccountNumber accountNumber;
     private final BigDecimal amount;
     private final BankOperationType type;
 
@@ -18,13 +18,13 @@ public final class BankOperation {
      * Package-private constructor
      *
      * @param id        operation id
-     * @param accountId account id
+     * @param accountNumber account id
      * @param amount    amount of transferred money
      * @param type      operation type
      */
-    BankOperation(OperationId id, BankAccount.AccountId accountId, BigDecimal amount, BankOperationType type) {
+    BankOperation(OperationId id, BankAccount.AccountNumber accountNumber, BigDecimal amount, BankOperationType type) {
         this.id = id;
-        this.accountId = accountId;
+        this.accountNumber = accountNumber;
         this.amount = amount;
         this.type = type;
     }
@@ -33,8 +33,8 @@ public final class BankOperation {
         return id;
     }
 
-    public BankAccount.AccountId getAccountId() {
-        return accountId;
+    public BankAccount.AccountNumber getAccountId() {
+        return accountNumber;
     }
 
     public BigDecimal getAmount() {
