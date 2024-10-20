@@ -33,6 +33,6 @@ public interface BankPersistenceService {
      * @param timestamp     timestamp of the balance update. Should be specified in milliseconds
      * @return updated account entity
      */
-    AccountEntity updateAccountBalance(long accountNumber, double newBalance, long timestamp);
+    AccountEntity updateAccountBalance(long accountNumber, String newBalance, long timestamp);
 
 }

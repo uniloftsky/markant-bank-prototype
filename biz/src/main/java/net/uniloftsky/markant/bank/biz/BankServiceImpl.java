@@ -49,7 +49,7 @@ public class BankServiceImpl implements BankService {
         }
 
         long transactionTimestamp = clock.instant().toEpochMilli();
-        AccountEntity updatedAccount = persistenceService.updateAccountBalance(accountNumber.getNumber(), balanceAfterWithdrawal.doubleValue(), transactionTimestamp);
+        AccountEntity updatedAccount = persistenceService.updateAccountBalance(accountNumber.getNumber(), balanceAfterWithdrawal.toPlainString(), transactionTimestamp);
         return map(updatedAccount);
     }
 
@@ -67,12 +67,12 @@ public class BankServiceImpl implements BankService {
 
         BigDecimal balanceAfterDeposit = account.getBalance().add(amount);
         long transactionTimestamp = clock.instant().toEpochMilli();
-        AccountEntity updatedAccount = persistenceService.updateAccountBalance(accountNumber.getNumber(), balanceAfterDeposit.doubleValue(), transactionTimestamp);
+        AccountEntity updatedAccount = persistenceService.updateAccountBalance(accountNumber.getNumber(), balanceAfterDeposit.toPlainString(), transactionTimestamp);
         return map(updatedAccount);
     }
 
     private BankAccount map(AccountEntity entity) {
-        AccountNumber accountNumber = AccountNumber.of(entity.getId());
+        AccountNumber accountNumber = AccountNumber.of(entity.getNumber());
         BigDecimal balance = new BigDecimal(entity.getBalance());
         return new BankAccount(accountNumber, balance);
     }

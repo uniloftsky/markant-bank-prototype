@@ -12,8 +12,8 @@ import java.util.Objects;
 public class AccountEntity {
 
     @Id
-    @Column(name = "id", nullable = false, updatable = false)
-    private long id;
+    @Column(name = "number", nullable = false, updatable = false)
+    private long number;
 
     @Column(name = "balance")
     private String balance;
@@ -24,12 +24,12 @@ public class AccountEntity {
     @Column(name = "updated_at")
     private long updatedAt;
 
-    public long getId() {
-        return id;
+    public long getNumber() {
+        return number;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setNumber(long id) {
+        this.number = id;
     }
 
     public String getBalance() {
@@ -61,18 +61,18 @@ public class AccountEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AccountEntity that = (AccountEntity) o;
-        return Objects.equals(id, that.id);
+        return Objects.equals(number, that.number);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return Objects.hashCode(number);
     }
 
     @Override
     public String toString() {
         return "AccountEntity{" +
-                "id='" + id + '\'' +
+                "number='" + number + '\'' +
                 ", balance=" + balance +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +

@@ -27,7 +27,7 @@ public class BankPersistenceServiceImpl implements BankPersistenceService {
         }
 
         AccountEntity account = new AccountEntity();
-        account.setId(accountNumber);
+        account.setNumber(accountNumber);
         account.setBalance(INITIAL_BALANCE);
         account.setCreatedAt(creationTimestamp);
         account = accountRepository.save(account);
@@ -46,7 +46,7 @@ public class BankPersistenceServiceImpl implements BankPersistenceService {
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
-    public AccountEntity updateAccountBalance(long accountNumber, double newBalance, long timestamp) {
+    public AccountEntity updateAccountBalance(long accountNumber, String newBalance, long timestamp) {
         return null;
     }
 

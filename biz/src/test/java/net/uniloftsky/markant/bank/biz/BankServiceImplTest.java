@@ -50,7 +50,7 @@ public class BankServiceImplTest {
 
         // mocking account object from persistence service
         AccountEntity entity = new AccountEntity();
-        entity.setId(number);
+        entity.setNumber(number);
         entity.setBalance(balance.toPlainString());
         given(persistenceService.getAccount(number)).willReturn(entity);
 
@@ -246,7 +246,7 @@ public class BankServiceImplTest {
         mockClockInstant(creationTimestamp);
 
         AccountEntity createdEntity = new AccountEntity();
-        createdEntity.setId(number);
+        createdEntity.setNumber(number);
         createdEntity.setCreatedAt(creationTimestamp);
         createdEntity.setBalance("100");
         given(persistenceService.createAccount(number, creationTimestamp)).willReturn(createdEntity);
@@ -279,9 +279,9 @@ public class BankServiceImplTest {
      */
     private void mockAccountWithUpdatedBalance(long number, BigDecimal updatedBalance, long timestamp) {
         AccountEntity updatedAccountEntity = new AccountEntity();
-        updatedAccountEntity.setId(number);
+        updatedAccountEntity.setNumber(number);
         updatedAccountEntity.setBalance(updatedBalance.toPlainString());
-        given(persistenceService.updateAccountBalance(number, updatedBalance.doubleValue(), timestamp)).willReturn(updatedAccountEntity);
+        given(persistenceService.updateAccountBalance(number, updatedBalance.toPlainString(), timestamp)).willReturn(updatedAccountEntity);
     }
 
 }

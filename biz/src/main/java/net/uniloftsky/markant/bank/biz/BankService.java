@@ -7,6 +7,13 @@ import java.math.BigDecimal;
  */
 public interface BankService {
 
+    /**
+     * Get account by provided account number
+     *
+     * @param accountNumber account number
+     * @return bank account
+     * @throws AccountNotFoundException if account by provided number cannot be found
+     */
     BankAccount getAccount(AccountNumber accountNumber) throws AccountNotFoundException;
 
     /**
