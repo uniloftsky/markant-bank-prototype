@@ -14,7 +14,7 @@ public interface BankPersistenceService {
      * @return created account entity
      * @throws IllegalArgumentException if parameters are invalid
      */
-    AccountEntity createAccount(int accountNumber, long creationTimestamp);
+    AccountEntity createAccount(long accountNumber, long creationTimestamp);
 
     /**
      * Get account by account number
@@ -23,7 +23,7 @@ public interface BankPersistenceService {
      * @return account entity
      * @throws AccountNotFoundPersistenceServiceException in case if account by the provided ID cannot be found
      */
-    AccountEntity getAccount(int accountNumber) throws AccountNotFoundPersistenceServiceException;
+    AccountEntity getAccount(long accountNumber) throws AccountNotFoundPersistenceServiceException;
 
     /**
      * Update account balance
@@ -33,6 +33,6 @@ public interface BankPersistenceService {
      * @param timestamp     timestamp of the balance update. Should be specified in milliseconds
      * @return updated account entity
      */
-    AccountEntity updateAccountBalance(int accountNumber, double newBalance, long timestamp);
+    AccountEntity updateAccountBalance(long accountNumber, double newBalance, long timestamp);
 
 }

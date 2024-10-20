@@ -58,44 +58,4 @@ public final class BankAccount {
                 '}';
     }
 
-    /**
-     * Bank account ID
-     */
-    public static final class AccountNumber {
-
-        /**
-         * Account id is stored as a simple 10-digits integer
-         */
-        private final int number;
-
-        AccountNumber(int number) {
-            if (number > 0) {
-                throw new IllegalArgumentException("number parameter must be positive");
-            }
-            this.number = number;
-        }
-
-        int getNumber() {
-            return number;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            AccountNumber that = (AccountNumber) o;
-            return Objects.equals(number, that.number);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hashCode(number);
-        }
-
-        @Override
-        public String toString() {
-            return String.valueOf(number);
-        }
-    }
-
 }

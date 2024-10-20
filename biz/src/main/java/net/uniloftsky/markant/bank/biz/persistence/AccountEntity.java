@@ -12,34 +12,31 @@ import java.util.Objects;
 public class AccountEntity {
 
     @Id
-    @Column(name = "id")
-    private int id;
+    @Column(name = "id", nullable = false, updatable = false)
+    private long id;
 
     @Column(name = "balance")
-    private double balance;
+    private String balance;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private long createdAt;
 
     @Column(name = "updated_at")
     private long updatedAt;
 
-    public AccountEntity() {
-    }
-
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
-    public double getBalance() {
+    public String getBalance() {
         return balance;
     }
 
-    void setBalance(double balance) {
+    public void setBalance(String balance) {
         this.balance = balance;
     }
 
@@ -47,7 +44,7 @@ public class AccountEntity {
         return createdAt;
     }
 
-    void setCreatedAt(long createdAt) {
+    public void setCreatedAt(long createdAt) {
         this.createdAt = createdAt;
     }
 
@@ -55,7 +52,7 @@ public class AccountEntity {
         return updatedAt;
     }
 
-    void setUpdatedAt(long updatedAt) {
+    public void setUpdatedAt(long updatedAt) {
         this.updatedAt = updatedAt;
     }
 

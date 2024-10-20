@@ -11,11 +11,14 @@ import java.util.Optional;
 @Service
 public class BankPersistenceServiceImpl implements BankPersistenceService {
 
+    // Default balance value on account creation
+    private static final String INITIAL_BALANCE = "0";
+
     private AccountRepository accountRepository;
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
-    public AccountEntity createAccount(int accountNumber, long creationTimestamp) {
+    public AccountEntity createAccount(long accountNumber, long creationTimestamp) {
         if (accountNumber == 0) {
             throw new IllegalArgumentException("accountId cannot be null");
         }
@@ -25,7 +28,7 @@ public class BankPersistenceServiceImpl implements BankPersistenceService {
 
         AccountEntity account = new AccountEntity();
         account.setId(accountNumber);
-        account.setBalance(0);
+        account.setBalance(INITIAL_BALANCE);
         account.setCreatedAt(creationTimestamp);
         account = accountRepository.save(account);
         return account;
@@ -33,19 +36,17 @@ public class BankPersistenceServiceImpl implements BankPersistenceService {
 
     @Override
     @Transactional(readOnly = true)
-    public AccountEntity getAccount(int accountNumber) throws AccountNotFoundPersistenceServiceException {
-
-
+    public AccountEntity getAccount(long accountNumber) throws AccountNotFoundPersistenceServiceException {
         Optional<AccountEntity> accountOptional = accountRepository.findById(accountNumber);
         if (accountOptional.isEmpty()) {
             throw new AccountNotFoundPersistenceServiceException("account with account number " + accountNumber + " not found");
         }
-
         return accountOptional.get();
     }
 
     @Override
-    public AccountEntity updateAccountBalance(int accountNumber, double newBalance, long timestamp) {
+    @Transactional(propagation = Propagation.MANDATORY)
+    public AccountEntity updateAccountBalance(long accountNumber, double newBalance, long timestamp) {
         return null;
     }
 

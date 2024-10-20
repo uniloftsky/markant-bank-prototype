@@ -10,7 +10,7 @@ import java.util.UUID;
 public final class BankOperation {
 
     private final OperationId id;
-    private final BankAccount.AccountNumber accountNumber;
+    private final AccountNumber accountNumber;
     private final BigDecimal amount;
     private final BankOperationType type;
 
@@ -22,7 +22,7 @@ public final class BankOperation {
      * @param amount    amount of transferred money
      * @param type      operation type
      */
-    BankOperation(OperationId id, BankAccount.AccountNumber accountNumber, BigDecimal amount, BankOperationType type) {
+    BankOperation(OperationId id, AccountNumber accountNumber, BigDecimal amount, BankOperationType type) {
         this.id = id;
         this.accountNumber = accountNumber;
         this.amount = amount;
@@ -33,7 +33,7 @@ public final class BankOperation {
         return id;
     }
 
-    public BankAccount.AccountNumber getAccountId() {
+    public AccountNumber getAccountId() {
         return accountNumber;
     }
 

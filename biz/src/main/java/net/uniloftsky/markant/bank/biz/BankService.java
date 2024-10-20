@@ -7,22 +7,22 @@ import java.math.BigDecimal;
  */
 public interface BankService {
 
-    BankAccount getAccount(BankAccount.AccountNumber accountNumber) throws AccountNotFoundException;
+    BankAccount getAccount(AccountNumber accountNumber) throws AccountNotFoundException;
 
     /**
      * Withdraw the provided amount of money from account
      *
      * @param accountNumber account ID
-     * @param amount    money amount
+     * @param amount        money amount
      */
-    BankAccount withdraw(BankAccount.AccountNumber accountNumber, BigDecimal amount) throws AccountNotFoundException, NotEnoughMoneyException;
+    BankAccount withdraw(AccountNumber accountNumber, BigDecimal amount) throws AccountNotFoundException, NotEnoughMoneyException;
 
     /**
      * Deposit the provided amount of money to account
      *
      * @param accountNumber account ID
-     * @param amount    money amount
+     * @param amount        money amount
      */
-    BankAccount deposit(BankAccount.AccountNumber accountNumber, BigDecimal amount);
+    BankAccount deposit(AccountNumber accountNumber, BigDecimal amount);
 
 }

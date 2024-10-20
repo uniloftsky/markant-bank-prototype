@@ -14,11 +14,6 @@ import java.time.Clock;
 public class BankServiceImpl implements BankService {
 
     /**
-     * Length of account number
-     */
-    private static final int ACCOUNT_NUMBER_LENGTH = 10;
-
-    /**
      * Bank persistence service to work with database
      */
     private BankPersistenceService persistenceService;
@@ -34,7 +29,7 @@ public class BankServiceImpl implements BankService {
 
     @Override
     @Transactional(readOnly = true)
-    public BankAccount getAccount(BankAccount.AccountNumber accountNumber) throws AccountNotFoundException {
+    public BankAccount getAccount(AccountNumber accountNumber) throws AccountNotFoundException {
         try {
             return map(persistenceService.getAccount(accountNumber.getNumber()));
         } catch (AccountNotFoundPersistenceServiceException notFound) {
@@ -44,7 +39,7 @@ public class BankServiceImpl implements BankService {
 
     @Override
     @Transactional
-    public BankAccount withdraw(BankAccount.AccountNumber accountNumber, BigDecimal amount) throws AccountNotFoundException, NotEnoughMoneyException {
+    public BankAccount withdraw(AccountNumber accountNumber, BigDecimal amount) throws AccountNotFoundException, NotEnoughMoneyException {
         validateTransactionParameters(accountNumber, amount);
 
         BankAccount account = getAccount(accountNumber);
@@ -60,17 +55,14 @@ public class BankServiceImpl implements BankService {
 
     @Override
     @Transactional
-    public BankAccount deposit(BankAccount.AccountNumber accountNumber, BigDecimal amount) {
+    public BankAccount deposit(AccountNumber accountNumber, BigDecimal amount) {
         validateTransactionParameters(accountNumber, amount);
 
         BankAccount account;
         try {
             account = getAccount(accountNumber);
         } catch (AccountNotFoundException ex) {
-
-            // create a new account if it cannot be found
-            long accountCreationTimestamp = clock.instant().toEpochMilli();
-            account = map(persistenceService.createAccount(accountNumber.getNumber(), accountCreationTimestamp));
+            account = createAccount(accountNumber); // create a new account if it cannot be found
         }
 
         BigDecimal balanceAfterDeposit = account.getBalance().add(amount);
@@ -80,8 +72,8 @@ public class BankServiceImpl implements BankService {
     }
 
     private BankAccount map(AccountEntity entity) {
-        BankAccount.AccountNumber accountNumber = new BankAccount.AccountNumber(entity.getId());
-        BigDecimal balance = BigDecimal.valueOf(entity.getBalance());
+        AccountNumber accountNumber = AccountNumber.of(entity.getId());
+        BigDecimal balance = new BigDecimal(entity.getBalance());
         return new BankAccount(accountNumber, balance);
     }
 
@@ -91,7 +83,7 @@ public class BankServiceImpl implements BankService {
      * @param accountNumber account ID
      * @param amount        transaction amount
      */
-    private void validateTransactionParameters(BankAccount.AccountNumber accountNumber, BigDecimal amount) {
+    void validateTransactionParameters(AccountNumber accountNumber, BigDecimal amount) {
         if (accountNumber == null) {
             throw new IllegalArgumentException("accountId cannot be null");
         }
@@ -100,15 +92,10 @@ public class BankServiceImpl implements BankService {
         }
     }
 
-    private BankAccount createAccount(int accountNumber) {
+    BankAccount createAccount(AccountNumber accountNumber) {
         long creationTimestamp = clock.instant().toEpochMilli();
-        AccountEntity createdAccountEntity = persistenceService.createAccount(accountNumber, creationTimestamp);
+        AccountEntity createdAccountEntity = persistenceService.createAccount(accountNumber.getNumber(), creationTimestamp);
         return map(createdAccountEntity);
-    }
-
-    private void validateAccountNumber(int accountNumber) {
-        String accountNumberString = String.valueOf(accountNumber);
-
     }
 
     @Autowired
