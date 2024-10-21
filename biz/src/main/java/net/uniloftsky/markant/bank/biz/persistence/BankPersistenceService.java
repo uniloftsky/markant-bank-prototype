@@ -26,9 +26,10 @@ public interface BankPersistenceService {
     AccountEntity getAccount(long accountNumber);
 
     /**
-     * Update balance for an EXISTING account.
+     * Update balance for an existing account.
+     * Method has a side effect: the provided accountEntity will be modified with a new balance and timestamp
      *
-     * @param accountEntity EXISTING account entity
+     * @param accountEntity existing account entity
      * @param newBalance    new balance value
      * @param timestamp     timestamp of the balance update. Should be specified in milliseconds
      * @return updated account entity

@@ -90,6 +90,14 @@ public class BankServiceImpl implements BankService {
         }
     }
 
+    /**
+     * Maps a persistence-layer account entity to a business-layer {@link BankAccount} object.
+     * This conversion translates the database representation of an account into a form
+     * suitable for business layer.
+     *
+     * @param entity entity to map
+     * @return mapped {@link BankAccount}
+     */
     private BankAccount map(AccountEntity entity) {
         AccountNumber accountNumber = AccountNumber.of(entity.getNumber());
         BigDecimal balance = new BigDecimal(entity.getBalance());
@@ -111,6 +119,14 @@ public class BankServiceImpl implements BankService {
         }
     }
 
+    /**
+     * Retrieves an account entity by the provided accountNumber.
+     * If the account already exists, it will be returned.
+     * Otherwise, a new account entity will be created and returned.
+     *
+     * @param accountNumber account number
+     * @return existing or freshly created account with provided number
+     */
     AccountEntity getOrCreateAccountEntity(AccountNumber accountNumber) {
         try {
             return persistenceService.getAccount(accountNumber.getNumber());
