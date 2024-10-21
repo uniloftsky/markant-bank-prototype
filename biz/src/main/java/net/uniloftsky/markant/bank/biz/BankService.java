@@ -22,7 +22,7 @@ public interface BankService {
      * @param accountNumber account ID
      * @param amount        money amount
      */
-    BankAccount withdraw(AccountNumber accountNumber, BigDecimal amount) throws AccountNotFoundException, NotEnoughMoneyException;
+    BankAccount withdraw(AccountNumber accountNumber, BigDecimal amount) throws AccountNotFoundException, InsufficientBalanceException;
 
     /**
      * Deposit the provided amount of money to account

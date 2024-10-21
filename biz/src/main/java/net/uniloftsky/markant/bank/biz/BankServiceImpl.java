@@ -1,5 +1,8 @@
 package net.uniloftsky.markant.bank.biz;
 
+import net.anotheria.idbasedlock.IdBasedLock;
+import net.anotheria.idbasedlock.IdBasedLockManager;
+import net.anotheria.idbasedlock.SafeIdBasedLockManager;
 import net.uniloftsky.markant.bank.biz.persistence.AccountEntity;
 import net.uniloftsky.markant.bank.biz.persistence.AccountNotFoundPersistenceServiceException;
 import net.uniloftsky.markant.bank.biz.persistence.BankPersistenceService;
@@ -14,7 +17,7 @@ import java.time.Clock;
 public class BankServiceImpl implements BankService {
 
     /**
-     * Bank persistence service to work with database
+     * Persistence service
      */
     private BankPersistenceService persistenceService;
 
@@ -23,8 +26,14 @@ public class BankServiceImpl implements BankService {
      */
     private Clock clock;
 
+    /**
+     * Lock manager to synchronize transactions within a single account
+     */
+    private IdBasedLockManager<AccountNumber> accountLockManager;
+
     public BankServiceImpl() {
         this.clock = Clock.systemUTC();
+        this.accountLockManager = new SafeIdBasedLockManager<>();
     }
 
     @Override
@@ -39,18 +48,27 @@ public class BankServiceImpl implements BankService {
 
     @Override
     @Transactional
-    public BankAccount withdraw(AccountNumber accountNumber, BigDecimal amount) throws AccountNotFoundException, NotEnoughMoneyException {
+    public BankAccount withdraw(AccountNumber accountNumber, BigDecimal amount) throws AccountNotFoundException, InsufficientBalanceException {
         validateTransactionParameters(accountNumber, amount);
 
-        BankAccount account = getAccount(accountNumber);
-        BigDecimal balanceAfterWithdrawal = account.getBalance().subtract(amount);
-        if (balanceAfterWithdrawal.compareTo(BigDecimal.ZERO) < 0) {
-            throw new NotEnoughMoneyException("withdrawal amount is greater than the current account balance");
-        }
+        IdBasedLock<AccountNumber> lock = accountLockManager.obtainLock(accountNumber);
+        lock.lock();
+        try {
+            AccountEntity accountEntity = persistenceService.getAccount(accountNumber.getNumber());
+            BankAccount account = map(accountEntity);
+            BigDecimal balanceAfterWithdrawal = account.getBalance().subtract(amount);
+            if (balanceAfterWithdrawal.compareTo(BigDecimal.ZERO) < 0) {
+                throw new InsufficientBalanceException("withdrawal amount is greater than the current account balance");
+            }
 
-        long transactionTimestamp = clock.instant().toEpochMilli();
-        AccountEntity updatedAccount = persistenceService.updateAccountBalance(accountNumber.getNumber(), balanceAfterWithdrawal.toPlainString(), transactionTimestamp);
-        return map(updatedAccount);
+            long transactionTimestamp = clock.instant().toEpochMilli();
+            AccountEntity updatedAccountEntity = persistenceService.updateAccountBalance(accountEntity, balanceAfterWithdrawal.toPlainString(), transactionTimestamp);
+            return map(updatedAccountEntity);
+        } catch (AccountNotFoundPersistenceServiceException ex) {
+            throw new AccountNotFoundException(ex.getMessage());
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
@@ -58,17 +76,18 @@ public class BankServiceImpl implements BankService {
     public BankAccount deposit(AccountNumber accountNumber, BigDecimal amount) {
         validateTransactionParameters(accountNumber, amount);
 
-        BankAccount account;
+        IdBasedLock<AccountNumber> lock = accountLockManager.obtainLock(accountNumber);
+        lock.lock();
         try {
-            account = getAccount(accountNumber);
-        } catch (AccountNotFoundException ex) {
-            account = createAccount(accountNumber); // create a new account if it cannot be found
+            AccountEntity accountEntity = getOrCreateAccountEntity(accountNumber);
+            BankAccount account = map(accountEntity);
+            BigDecimal balanceAfterDeposit = account.getBalance().add(amount);
+            long transactionTimestamp = clock.instant().toEpochMilli();
+            AccountEntity updatedAccountEntity = persistenceService.updateAccountBalance(accountEntity, balanceAfterDeposit.toPlainString(), transactionTimestamp);
+            return map(updatedAccountEntity);
+        } finally {
+            lock.unlock();
         }
-
-        BigDecimal balanceAfterDeposit = account.getBalance().add(amount);
-        long transactionTimestamp = clock.instant().toEpochMilli();
-        AccountEntity updatedAccount = persistenceService.updateAccountBalance(accountNumber.getNumber(), balanceAfterDeposit.toPlainString(), transactionTimestamp);
-        return map(updatedAccount);
     }
 
     private BankAccount map(AccountEntity entity) {
@@ -92,10 +111,15 @@ public class BankServiceImpl implements BankService {
         }
     }
 
-    BankAccount createAccount(AccountNumber accountNumber) {
-        long creationTimestamp = clock.instant().toEpochMilli();
-        AccountEntity createdAccountEntity = persistenceService.createAccount(accountNumber.getNumber(), creationTimestamp);
-        return map(createdAccountEntity);
+    AccountEntity getOrCreateAccountEntity(AccountNumber accountNumber) {
+        try {
+            return persistenceService.getAccount(accountNumber.getNumber());
+        } catch (AccountNotFoundPersistenceServiceException ex) {
+
+            // If not found, create a new account
+            long accountCreationTimestamp = clock.instant().toEpochMilli();
+            return persistenceService.createAccount(accountNumber.getNumber(), accountCreationTimestamp);
+        }
     }
 
     @Autowired

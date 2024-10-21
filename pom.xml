@@ -66,6 +66,12 @@
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>${spring.boot.openapi.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>net.anotheria</groupId>
+            <artifactId>idbasedlock</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 
 </project>

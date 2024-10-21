@@ -33,7 +33,14 @@ public class BankServiceImplTest {
     @InjectMocks
     private BankServiceImpl bankService;
 
+    /**
+     * Dummy number
+     */
     private long number;
+
+    /**
+     * Dummy account number
+     */
     private AccountNumber accountNumber;
 
     @BeforeEach
@@ -82,23 +89,25 @@ public class BankServiceImplTest {
     }
 
     @Test
-    public void testWithdraw() throws NotEnoughMoneyException, AccountNotFoundException {
+    public void testWithdraw() throws InsufficientBalanceException, AccountNotFoundException {
 
         // given
         BigDecimal withdrawalAmount = new BigDecimal("100.49");
         BigDecimal accountBalance = new BigDecimal("200.65");
         BigDecimal afterWithdrawal = accountBalance.subtract(withdrawalAmount);
 
-        // creating the mock of account with balance of "accountBalance"
-        BankAccount account = new BankAccount(accountNumber, accountBalance);
-        doReturn(account).when(bankService).getAccount(accountNumber);
+        // creating the mock of account entity with balance of "accountBalance"
+        AccountEntity accountEntity = new AccountEntity();
+        accountEntity.setNumber(number);
+        accountEntity.setBalance(accountBalance.toPlainString());
+        given(persistenceService.getAccount(number)).willReturn(accountEntity);
 
         // mocking the clock to return a predefined timestamp for the transaction
         long transactionTimestamp = System.currentTimeMillis();
         mockClockInstant(transactionTimestamp);
 
         // mocking the persistence layer to return an updated account with the new balance
-        mockAccountWithUpdatedBalance(number, afterWithdrawal, transactionTimestamp);
+        mockAccountWithUpdatedBalance(accountEntity, afterWithdrawal, transactionTimestamp);
 
         // when
         BankAccount result = bankService.withdraw(accountNumber, withdrawalAmount);
@@ -117,15 +126,17 @@ public class BankServiceImplTest {
         BigDecimal withdrawalAmount = new BigDecimal("500.49");
         BigDecimal accountBalance = new BigDecimal("200.65");
 
-        // creating the mock of account with balance of "accountBalance"
-        BankAccount account = new BankAccount(accountNumber, accountBalance);
-        doReturn(account).when(bankService).getAccount(accountNumber);
+        // creating the mock of account entity with balance of "accountBalance"
+        AccountEntity accountEntity = new AccountEntity();
+        accountEntity.setNumber(number);
+        accountEntity.setBalance(accountBalance.toPlainString());
+        given(persistenceService.getAccount(number)).willReturn(accountEntity);
 
         try {
 
             // when
             bankService.withdraw(accountNumber, withdrawalAmount);
-        } catch (NotEnoughMoneyException ex) {
+        } catch (InsufficientBalanceException ex) {
 
             // then
             assertNotNull(ex);
@@ -133,54 +144,25 @@ public class BankServiceImplTest {
     }
 
     @Test
-    public void testDeposit() throws AccountNotFoundException {
+    public void testDeposit() {
 
         // given
         BigDecimal depositAmount = new BigDecimal("100.49");
         BigDecimal accountBalance = new BigDecimal("200.65");
         BigDecimal afterDeposit = accountBalance.add(depositAmount);
 
-        // creating the mock of account with balance of "accountBalance"
-        BankAccount account = new BankAccount(accountNumber, accountBalance);
-        doReturn(account).when(bankService).getAccount(accountNumber);
+        // creating the mock of account entity with balance of "accountBalance"
+        AccountEntity accountEntity = new AccountEntity();
+        accountEntity.setNumber(number);
+        accountEntity.setBalance(accountBalance.toPlainString());
+        doReturn(accountEntity).when(bankService).getOrCreateAccountEntity(accountNumber);
 
         // mocking the clock to return predefined timestamp
         long transactionTimestamp = System.currentTimeMillis();
         mockClockInstant(transactionTimestamp);
 
         // mocking the persistence layer to return an updated account with the new balance
-        mockAccountWithUpdatedBalance(number, afterDeposit, transactionTimestamp);
-
-        // when
-        BankAccount result = bankService.deposit(accountNumber, depositAmount);
-
-        // then
-        assertNotNull(result);
-        assertEquals(accountNumber, result.getId());
-        assertEquals(0, afterDeposit.compareTo(result.getBalance()));
-    }
-
-    @Test
-    public void testDepositUnknownAccount() throws AccountNotFoundException {
-
-        // given
-        // throwing the exception to simulate the behaviour when account by specific number cannot be found
-        doThrow(new AccountNotFoundException()).when(bankService).getAccount(accountNumber);
-
-        // mocking the clock to return predefined timestamp
-        long transactionTimestamp = System.currentTimeMillis();
-        mockClockInstant(transactionTimestamp);
-
-        // mocking the account creation with predefined balance
-        BigDecimal accountBalance = new BigDecimal("0");
-        BankAccount createdAccount = new BankAccount(accountNumber, accountBalance);
-        doReturn(createdAccount).when(bankService).createAccount(accountNumber);
-
-        BigDecimal depositAmount = new BigDecimal("100.49");
-        BigDecimal afterDeposit = accountBalance.add(depositAmount);
-
-        // mocking the persistence layer to return an updated account with the new balance
-        mockAccountWithUpdatedBalance(number, afterDeposit, transactionTimestamp);
+        mockAccountWithUpdatedBalance(accountEntity, afterDeposit, transactionTimestamp);
 
         // when
         BankAccount result = bankService.deposit(accountNumber, depositAmount);
@@ -239,24 +221,51 @@ public class BankServiceImplTest {
     }
 
     @Test
-    public void testCreateAccount() {
+    public void testGetOrCreateAccountEntityExists() {
 
         // given
-        long creationTimestamp = System.currentTimeMillis();
-        mockClockInstant(creationTimestamp);
+        // creating a mock of account entity from persistence
+        AccountEntity entity = new AccountEntity();
+        entity.setNumber(number);
 
-        AccountEntity createdEntity = new AccountEntity();
-        createdEntity.setNumber(number);
-        createdEntity.setCreatedAt(creationTimestamp);
-        createdEntity.setBalance("100");
-        given(persistenceService.createAccount(number, creationTimestamp)).willReturn(createdEntity);
+        String balance = "100";
+        entity.setBalance(balance);
+        given(persistenceService.getAccount(number)).willReturn(entity);
 
         // when
-        BankAccount result = bankService.createAccount(accountNumber);
+        AccountEntity result = bankService.getOrCreateAccountEntity(accountNumber);
 
         // then
         assertNotNull(result);
-        assertEquals(accountNumber, result.getId());
+        assertEquals(number, result.getNumber());
+        assertEquals(balance, result.getBalance());
+    }
+
+    @Test
+    public void testGetOrCreateAccountEntityNotExist() {
+
+        // given
+        // throw exception to simulate that requested account doesn't exist in persistence
+        doThrow(new AccountNotFoundPersistenceServiceException()).when(persistenceService).getAccount(number);
+
+        // mocking the clock to return predefined timestamp for account creation
+        long accountCreationTimestamp = System.currentTimeMillis();
+        mockClockInstant(accountCreationTimestamp);
+
+        // mocking persistent layer to return created account entity
+        AccountEntity entity = new AccountEntity();
+        entity.setNumber(number);
+        String balance = "100";
+        entity.setBalance(balance);
+        given(persistenceService.createAccount(number, accountCreationTimestamp)).willReturn(entity);
+
+        // when
+        AccountEntity result = bankService.getOrCreateAccountEntity(accountNumber);
+
+        // then
+        assertNotNull(result);
+        assertEquals(number, result.getNumber());
+        assertEquals(balance, result.getBalance());
     }
 
     /**
@@ -273,15 +282,15 @@ public class BankServiceImplTest {
     /**
      * Method to mock the persistence service to simulate balance update
      *
-     * @param number         account number
+     * @param entity         account entity to update
      * @param updatedBalance updated balance
      * @param timestamp      timestamp of update
      */
-    private void mockAccountWithUpdatedBalance(long number, BigDecimal updatedBalance, long timestamp) {
+    private void mockAccountWithUpdatedBalance(AccountEntity entity, BigDecimal updatedBalance, long timestamp) {
         AccountEntity updatedAccountEntity = new AccountEntity();
         updatedAccountEntity.setNumber(number);
         updatedAccountEntity.setBalance(updatedBalance.toPlainString());
-        given(persistenceService.updateAccountBalance(number, updatedBalance.toPlainString(), timestamp)).willReturn(updatedAccountEntity);
+        given(persistenceService.updateAccountBalance(entity, updatedBalance.toPlainString(), timestamp)).willReturn(updatedAccountEntity);
     }
 
 }

@@ -11,4 +11,12 @@
 
     <artifactId>rest</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>net.uniloftsky.markant</groupId>
+            <artifactId>biz</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
 </project>

@@ -12,7 +12,7 @@ import java.util.Optional;
 public class BankPersistenceServiceImpl implements BankPersistenceService {
 
     // Default balance value on account creation
-    private static final String INITIAL_BALANCE = "0";
+    static final String INITIAL_BALANCE = "0";
 
     private AccountRepository accountRepository;
 
@@ -36,18 +36,21 @@ public class BankPersistenceServiceImpl implements BankPersistenceService {
 
     @Override
     @Transactional(readOnly = true)
-    public AccountEntity getAccount(long accountNumber) throws AccountNotFoundPersistenceServiceException {
+    public AccountEntity getAccount(long accountNumber) {
         Optional<AccountEntity> accountOptional = accountRepository.findById(accountNumber);
         if (accountOptional.isEmpty()) {
-            throw new AccountNotFoundPersistenceServiceException("account with account number " + accountNumber + " not found");
+            throw new AccountNotFoundPersistenceServiceException("account with number " + accountNumber + " not found");
         }
         return accountOptional.get();
     }
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
-    public AccountEntity updateAccountBalance(long accountNumber, String newBalance, long timestamp) {
-        return null;
+    public AccountEntity updateAccountBalance(AccountEntity accountEntity, String newBalance, long timestamp) {
+        accountEntity.setBalance(newBalance);
+        accountEntity.setUpdatedAt(timestamp);
+        accountEntity = accountRepository.save(accountEntity);
+        return accountEntity;
     }
 
     @Autowired

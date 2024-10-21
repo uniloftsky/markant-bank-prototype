@@ -1,6 +1,6 @@
 package net.uniloftsky.markant.bank.biz.persistence;
 
-public class BankPersistenceServiceException extends Exception {
+public class BankPersistenceServiceException extends RuntimeException {
 
     public BankPersistenceServiceException() {
     }

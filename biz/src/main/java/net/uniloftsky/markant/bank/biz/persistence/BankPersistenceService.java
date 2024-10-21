@@ -23,16 +23,16 @@ public interface BankPersistenceService {
      * @return account entity
      * @throws AccountNotFoundPersistenceServiceException in case if account by the provided ID cannot be found
      */
-    AccountEntity getAccount(long accountNumber) throws AccountNotFoundPersistenceServiceException;
+    AccountEntity getAccount(long accountNumber);
 
     /**
-     * Update account balance
+     * Update balance for an EXISTING account.
      *
-     * @param accountNumber account number
-     * @param newBalance    new account balance
+     * @param accountEntity EXISTING account entity
+     * @param newBalance    new balance value
      * @param timestamp     timestamp of the balance update. Should be specified in milliseconds
      * @return updated account entity
      */
-    AccountEntity updateAccountBalance(long accountNumber, String newBalance, long timestamp);
+    AccountEntity updateAccountBalance(AccountEntity accountEntity, String newBalance, long timestamp);
 
 }

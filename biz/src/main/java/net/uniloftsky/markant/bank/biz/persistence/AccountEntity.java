@@ -7,6 +7,9 @@ import jakarta.persistence.Table;
 
 import java.util.Objects;
 
+/**
+ * Persistence account entity
+ */
 @Entity
 @Table(name = "bank_account")
 public class AccountEntity {
