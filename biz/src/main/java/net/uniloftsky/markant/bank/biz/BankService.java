@@ -14,15 +14,17 @@ public interface BankService {
      * @return bank account
      * @throws AccountNotFoundException if account by provided number cannot be found
      */
-    BankAccount getAccount(AccountNumber accountNumber) throws AccountNotFoundException;
+    BankAccount getAccount(AccountNumber accountNumber);
 
     /**
      * Withdraw the provided amount of money from account
      *
      * @param accountNumber account ID
      * @param amount        money amount
+     * @throws AccountNotFoundException     if account by provided number cannot be found
+     * @throws InsufficientBalanceException if withdrawal amount is greater than account balance
      */
-    BankAccount withdraw(AccountNumber accountNumber, BigDecimal amount) throws AccountNotFoundException, InsufficientBalanceException;
+    BankAccount withdraw(AccountNumber accountNumber, BigDecimal amount);
 
     /**
      * Deposit the provided amount of money to account

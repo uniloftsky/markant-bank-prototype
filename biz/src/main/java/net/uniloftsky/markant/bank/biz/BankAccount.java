@@ -1,5 +1,8 @@
 package net.uniloftsky.markant.bank.biz;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 
@@ -11,26 +14,28 @@ public final class BankAccount {
     /**
      * Account id
      */
-    private final AccountNumber id;
+    @JsonSerialize(using = AccountNumberSerializer.class)
+    private final AccountNumber number;
 
     /**
      * Account balance
      */
+    @JsonSerialize(using = ToStringSerializer.class)
     private final BigDecimal balance;
 
     /**
-     * Package-private constructor
+     * Public constructor with arguments
      *
-     * @param id      account id
+     * @param number  account id
      * @param balance account balance
      */
-    BankAccount(AccountNumber id, BigDecimal balance) {
-        this.id = id;
+    public BankAccount(AccountNumber number, BigDecimal balance) {
+        this.number = number;
         this.balance = balance;
     }
 
-    public AccountNumber getId() {
-        return id;
+    public AccountNumber getNumber() {
+        return number;
     }
 
     public BigDecimal getBalance() {
@@ -42,18 +47,18 @@ public final class BankAccount {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BankAccount that = (BankAccount) o;
-        return Objects.equals(id, that.id);
+        return Objects.equals(number, that.number);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return Objects.hashCode(number);
     }
 
     @Override
     public String toString() {
         return "BankAccount{" +
-                "id=" + id +
+                "id=" + number +
                 ", balance=" + balance +
                 '}';
     }

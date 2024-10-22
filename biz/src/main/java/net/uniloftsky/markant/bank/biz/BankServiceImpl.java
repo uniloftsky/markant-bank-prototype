@@ -38,7 +38,7 @@ public class BankServiceImpl implements BankService {
 
     @Override
     @Transactional(readOnly = true)
-    public BankAccount getAccount(AccountNumber accountNumber) throws AccountNotFoundException {
+    public BankAccount getAccount(AccountNumber accountNumber) {
         try {
             return map(persistenceService.getAccount(accountNumber.getNumber()));
         } catch (AccountNotFoundPersistenceServiceException notFound) {
@@ -48,7 +48,7 @@ public class BankServiceImpl implements BankService {
 
     @Override
     @Transactional
-    public BankAccount withdraw(AccountNumber accountNumber, BigDecimal amount) throws AccountNotFoundException, InsufficientBalanceException {
+    public BankAccount withdraw(AccountNumber accountNumber, BigDecimal amount) {
         validateTransactionParameters(accountNumber, amount);
 
         IdBasedLock<AccountNumber> lock = accountLockManager.obtainLock(accountNumber);

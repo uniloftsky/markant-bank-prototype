@@ -66,7 +66,7 @@ public class BankServiceImplTest {
 
         // then
         assertNotNull(result);
-        assertEquals(accountNumber, result.getId());
+        assertEquals(accountNumber, result.getNumber());
         assertEquals(0, balance.compareTo(result.getBalance()));
     }
 
@@ -114,7 +114,7 @@ public class BankServiceImplTest {
 
         // then
         assertNotNull(result);
-        assertEquals(accountNumber, result.getId());
+        assertEquals(accountNumber, result.getNumber());
         assertEquals(0, afterWithdrawal.compareTo(result.getBalance()));
     }
 
@@ -169,7 +169,7 @@ public class BankServiceImplTest {
 
         // then
         assertNotNull(result);
-        assertEquals(accountNumber, result.getId());
+        assertEquals(accountNumber, result.getNumber());
         assertEquals(0, afterDeposit.compareTo(result.getBalance()));
     }
 

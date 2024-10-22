@@ -18,7 +18,7 @@ public final class AccountNumber {
 
     private AccountNumber(long number) {
         if (number < ACCOUNT_NUMBER_MIN || number > ACCOUNT_NUMBER_MAX) {
-            throw new IllegalArgumentException("invalid account number. Account number must be a 10-digit number");
+            throw new InvalidAccountNumberException("invalid account number. Account number must be a 10-digit number");
         }
         this.number = number;
     }

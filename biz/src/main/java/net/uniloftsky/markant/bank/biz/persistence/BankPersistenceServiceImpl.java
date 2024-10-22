@@ -3,8 +3,6 @@ package net.uniloftsky.markant.bank.biz.persistence;
 import net.uniloftsky.markant.bank.biz.persistence.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -17,7 +15,6 @@ public class BankPersistenceServiceImpl implements BankPersistenceService {
     private AccountRepository accountRepository;
 
     @Override
-    @Transactional(propagation = Propagation.MANDATORY)
     public AccountEntity createAccount(long accountNumber, long creationTimestamp) {
         if (accountNumber == 0) {
             throw new IllegalArgumentException("accountId cannot be null");
@@ -35,7 +32,6 @@ public class BankPersistenceServiceImpl implements BankPersistenceService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public AccountEntity getAccount(long accountNumber) {
         Optional<AccountEntity> accountOptional = accountRepository.findById(accountNumber);
         if (accountOptional.isEmpty()) {
@@ -45,7 +41,6 @@ public class BankPersistenceServiceImpl implements BankPersistenceService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.MANDATORY)
     public AccountEntity updateAccountBalance(AccountEntity accountEntity, String newBalance, long timestamp) {
         accountEntity.setBalance(newBalance);
         accountEntity.setUpdatedAt(timestamp);

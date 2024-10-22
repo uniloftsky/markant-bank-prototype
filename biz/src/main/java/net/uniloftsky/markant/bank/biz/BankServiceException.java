@@ -3,7 +3,7 @@ package net.uniloftsky.markant.bank.biz;
 /**
  * Root exception for {@link BankService}
  */
-public class BankServiceException extends Exception {
+public class BankServiceException extends RuntimeException {
 
     public BankServiceException() {
     }

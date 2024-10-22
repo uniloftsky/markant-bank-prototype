@@ -1,10 +1,7 @@
 package net.uniloftsky.markant.bank.rest;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import net.uniloftsky.markant.bank.biz.AccountNotFoundException;
-import net.uniloftsky.markant.bank.biz.AccountNumber;
-import net.uniloftsky.markant.bank.biz.BankAccount;
-import net.uniloftsky.markant.bank.biz.BankService;
+import net.uniloftsky.markant.bank.biz.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,15 +16,21 @@ public class BankController {
 
     private BankService bankService;
 
-    @GetMapping("account/{number}")
-    public ResponseEntity<BankAccount> getAccount(@PathVariable("number") long accountNumber) throws AccountNotFoundException {
+    @GetMapping("accounts/{accountNumber}")
+    public ResponseEntity<BankAccount> getAccount(@PathVariable("accountNumber") long accountNumber) throws AccountNotFoundException {
         BankAccount result = bankService.getAccount(AccountNumber.of(accountNumber));
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @PostMapping("account/deposit")
-    public ResponseEntity<BankAccount> deposit(@RequestBody TransactionRequest request) {
-        BankAccount result = bankService.deposit(AccountNumber.of(request.getNumber()), new BigDecimal(request.getAmount()));
+    @PostMapping("accounts/{accountNumber}/deposits")
+    public ResponseEntity<BankAccount> deposit(@PathVariable("accountNumber") long accountNumber, @RequestBody BalanceUpdateRequest request) {
+        BankAccount result = bankService.deposit(AccountNumber.of(accountNumber), new BigDecimal(request.getAmount()));
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @PostMapping("accounts/{accountNumber}/withdrawals")
+    public ResponseEntity<BankAccount> withdraw(@PathVariable("accountNumber") long accountNumber, @RequestBody BalanceUpdateRequest request) throws InsufficientBalanceException, AccountNotFoundException {
+        BankAccount result = bankService.withdraw(AccountNumber.of(accountNumber), new BigDecimal(request.getAmount()));
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
