@@ -42,7 +42,7 @@ public class BankServiceImpl implements BankService {
         try {
             return map(persistenceService.getAccount(accountNumber.getNumber()));
         } catch (AccountNotFoundPersistenceServiceException notFound) {
-            throw new AccountNotFoundException(notFound.getMessage());
+            throw new AccountNotFoundException(notFound.getMessage(), accountNumber);
         }
     }
 
@@ -65,7 +65,7 @@ public class BankServiceImpl implements BankService {
             AccountEntity updatedAccountEntity = persistenceService.updateAccountBalance(accountEntity, balanceAfterWithdrawal.toPlainString(), transactionTimestamp);
             return map(updatedAccountEntity);
         } catch (AccountNotFoundPersistenceServiceException ex) {
-            throw new AccountNotFoundException(ex.getMessage());
+            throw new AccountNotFoundException(ex.getMessage(), accountNumber);
         } finally {
             lock.unlock();
         }

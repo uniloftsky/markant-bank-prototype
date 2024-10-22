@@ -7,8 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-
 @RestController
 @RequestMapping("banking")
 @Tag(name = "banking", description = "Bank API")
@@ -24,13 +22,13 @@ public class BankController {
 
     @PostMapping("accounts/{accountNumber}/deposits")
     public ResponseEntity<BankAccount> deposit(@PathVariable("accountNumber") long accountNumber, @RequestBody BalanceUpdateRequest request) {
-        BankAccount result = bankService.deposit(AccountNumber.of(accountNumber), new BigDecimal(request.getAmount()));
+        BankAccount result = bankService.deposit(AccountNumber.of(accountNumber), request.getAmount());
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @PostMapping("accounts/{accountNumber}/withdrawals")
     public ResponseEntity<BankAccount> withdraw(@PathVariable("accountNumber") long accountNumber, @RequestBody BalanceUpdateRequest request) throws InsufficientBalanceException, AccountNotFoundException {
-        BankAccount result = bankService.withdraw(AccountNumber.of(accountNumber), new BigDecimal(request.getAmount()));
+        BankAccount result = bankService.withdraw(AccountNumber.of(accountNumber), request.getAmount());
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
