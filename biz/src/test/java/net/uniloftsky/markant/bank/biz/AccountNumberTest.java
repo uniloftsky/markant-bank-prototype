@@ -20,7 +20,7 @@ public class AccountNumberTest {
         long number = 1234L;
         try {
             AccountNumber.of(number);
-        } catch (IllegalArgumentException ex) {
+        } catch (InvalidAccountNumberException ex) {
             assertNotNull(ex);
         }
     }

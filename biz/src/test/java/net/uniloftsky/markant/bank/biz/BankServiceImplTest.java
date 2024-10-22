@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 
+import static net.uniloftsky.markant.bank.biz.BankServiceImpl.INITIAL_BALANCE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.BDDMockito.given;
@@ -257,7 +258,7 @@ public class BankServiceImplTest {
         entity.setNumber(number);
         String balance = "100";
         entity.setBalance(balance);
-        given(persistenceService.createAccount(number, accountCreationTimestamp)).willReturn(entity);
+        given(persistenceService.createAccount(number, INITIAL_BALANCE, accountCreationTimestamp)).willReturn(entity);
 
         // when
         AccountEntity result = bankService.getOrCreateAccountEntity(accountNumber);

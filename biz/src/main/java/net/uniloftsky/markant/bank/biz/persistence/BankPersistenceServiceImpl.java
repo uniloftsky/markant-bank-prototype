@@ -9,15 +9,15 @@ import java.util.Optional;
 @Service
 public class BankPersistenceServiceImpl implements BankPersistenceService {
 
-    // Default balance value on account creation
-    static final String INITIAL_BALANCE = "0";
-
     private AccountRepository accountRepository;
 
     @Override
-    public AccountEntity createAccount(long accountNumber, long creationTimestamp) {
+    public AccountEntity createAccount(long accountNumber, String balance, long creationTimestamp) {
         if (accountNumber == 0) {
             throw new IllegalArgumentException("accountId cannot be null");
+        }
+        if (balance == null || balance.isEmpty()) {
+            throw new IllegalArgumentException("balance cannot be null or empty");
         }
         if (creationTimestamp <= 0) {
             throw new IllegalArgumentException("creationTimestamp cannot be negative or zero");
@@ -25,7 +25,7 @@ public class BankPersistenceServiceImpl implements BankPersistenceService {
 
         AccountEntity account = new AccountEntity();
         account.setNumber(accountNumber);
-        account.setBalance(INITIAL_BALANCE);
+        account.setBalance(balance);
         account.setCreatedAt(creationTimestamp);
         account = accountRepository.save(account);
         return account;

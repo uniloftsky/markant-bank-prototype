@@ -16,6 +16,9 @@ import java.time.Clock;
 @Service
 public class BankServiceImpl implements BankService {
 
+    // Default balance value on account creation
+    static final String INITIAL_BALANCE = "0";
+
     /**
      * Persistence service
      */
@@ -134,7 +137,7 @@ public class BankServiceImpl implements BankService {
 
             // If not found, create a new account
             long accountCreationTimestamp = clock.instant().toEpochMilli();
-            return persistenceService.createAccount(accountNumber.getNumber(), accountCreationTimestamp);
+            return persistenceService.createAccount(accountNumber.getNumber(), INITIAL_BALANCE, accountCreationTimestamp);
         }
     }
 

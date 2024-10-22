@@ -7,7 +7,7 @@ import java.util.Objects;
  */
 public final class AccountNumber {
 
-    // for this prototype 10-digits number should be enough
+    // for this prototype 10 digits long number should be enough
     private static final long ACCOUNT_NUMBER_MIN = 1_000_000_000L;
     private static final long ACCOUNT_NUMBER_MAX = 9_999_999_999L;
 
@@ -17,13 +17,13 @@ public final class AccountNumber {
     private final long number;
 
     private AccountNumber(long number) {
-        if (number < ACCOUNT_NUMBER_MIN || number > ACCOUNT_NUMBER_MAX) {
-            throw new InvalidAccountNumberException("Invalid account number: " + number, String.valueOf(number));
-        }
         this.number = number;
     }
 
     public static AccountNumber of(long number) {
+        if (number < ACCOUNT_NUMBER_MIN || number > ACCOUNT_NUMBER_MAX) {
+            throw new InvalidAccountNumberException("Invalid account number: " + number, String.valueOf(number));
+        }
         return new AccountNumber(number);
     }
 

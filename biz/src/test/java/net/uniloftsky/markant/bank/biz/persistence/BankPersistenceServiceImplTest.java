@@ -10,7 +10,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static net.uniloftsky.markant.bank.biz.persistence.BankPersistenceServiceImpl.INITIAL_BALANCE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -40,6 +39,7 @@ public class BankPersistenceServiceImplTest {
 
         // given
         long creationTimestamp = System.currentTimeMillis();
+        String balance = "100.50";
 
         // mocking the repository to return created account
         AccountEntity savedEntity = new AccountEntity();
@@ -48,11 +48,11 @@ public class BankPersistenceServiceImplTest {
         given(accountRepository.save(argThat(e -> // check that account is saved with right properties
                 e.getNumber() == accountNumber &&
                         e.getCreatedAt() == creationTimestamp &&
-                        e.getBalance().equals(INITIAL_BALANCE))))
+                        e.getBalance().equals(balance))))
                 .willReturn(savedEntity);
 
         // when
-        AccountEntity result = bankPersistenceService.createAccount(accountNumber, creationTimestamp);
+        AccountEntity result = bankPersistenceService.createAccount(accountNumber, balance, creationTimestamp);
 
         // then
         assertNotNull(result);
@@ -69,7 +69,41 @@ public class BankPersistenceServiceImplTest {
         try {
 
             // when
-            bankPersistenceService.createAccount(0, creationTimestamp);
+            bankPersistenceService.createAccount(0, "100.50", creationTimestamp);
+        } catch (IllegalArgumentException ex) {
+
+            // then
+            assertNotNull(ex);
+        }
+    }
+
+    @Test
+    public void testCreateAccountNullableBalance() {
+
+        // given
+        long creationTimestamp = System.currentTimeMillis();
+
+        try {
+
+            // when
+            bankPersistenceService.createAccount(accountNumber, null, creationTimestamp);
+        } catch (IllegalArgumentException ex) {
+
+            // then
+            assertNotNull(ex);
+        }
+    }
+
+    @Test
+    public void testCreateAccountEmptyBalance() {
+
+        // given
+        long creationTimestamp = System.currentTimeMillis();
+
+        try {
+
+            // when
+            bankPersistenceService.createAccount(accountNumber, "", creationTimestamp);
         } catch (IllegalArgumentException ex) {
 
             // then
@@ -82,7 +116,7 @@ public class BankPersistenceServiceImplTest {
         try {
 
             // when
-            bankPersistenceService.createAccount(accountNumber, 0);
+            bankPersistenceService.createAccount(accountNumber, "100.50", 0);
         } catch (IllegalArgumentException ex) {
 
             // then
@@ -97,7 +131,8 @@ public class BankPersistenceServiceImplTest {
         // mocking the repository to return account
         AccountEntity entity = new AccountEntity();
         entity.setNumber(accountNumber);
-        entity.setBalance(INITIAL_BALANCE);
+        String balance = "100.50";
+        entity.setBalance(balance);
         given(accountRepository.findById(accountNumber)).willReturn(Optional.of(entity));
 
         // when
@@ -106,7 +141,7 @@ public class BankPersistenceServiceImplTest {
         // then
         assertNotNull(result);
         assertEquals(accountNumber, result.getNumber());
-        assertEquals(INITIAL_BALANCE, result.getBalance());
+        assertEquals(balance, result.getBalance());
     }
 
     @Test
@@ -134,7 +169,8 @@ public class BankPersistenceServiceImplTest {
         // mocking repository to return updated entity
         AccountEntity entity = new AccountEntity();
         entity.setNumber(accountNumber);
-        entity.setBalance(INITIAL_BALANCE);
+        String balance = "0";
+        entity.setBalance(balance);
         given(accountRepository.save(entity)).willReturn(entity);
 
         // when

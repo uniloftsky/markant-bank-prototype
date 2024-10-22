@@ -10,11 +10,12 @@ public interface BankPersistenceService {
      * Create account with provided parameters
      *
      * @param accountNumber     account number
+     * @param balance           account balance
      * @param creationTimestamp creation timestamp. Should be provided in milliseconds
      * @return created account entity
      * @throws IllegalArgumentException if parameters are invalid
      */
-    AccountEntity createAccount(long accountNumber, long creationTimestamp);
+    AccountEntity createAccount(long accountNumber, String balance, long creationTimestamp);
 
     /**
      * Get account by account number
