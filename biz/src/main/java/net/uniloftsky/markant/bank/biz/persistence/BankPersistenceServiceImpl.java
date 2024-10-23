@@ -13,15 +13,7 @@ public class BankPersistenceServiceImpl implements BankPersistenceService {
 
     @Override
     public AccountEntity createAccount(long accountNumber, String balance, long creationTimestamp) {
-        if (accountNumber == 0) {
-            throw new IllegalArgumentException("accountId cannot be null");
-        }
-        if (balance == null || balance.isEmpty()) {
-            throw new IllegalArgumentException("balance cannot be null or empty");
-        }
-        if (creationTimestamp <= 0) {
-            throw new IllegalArgumentException("creationTimestamp cannot be negative or zero");
-        }
+        assert accountNumber >= 0 && balance != null && !balance.isEmpty() && creationTimestamp >= 0;
 
         AccountEntity account = new AccountEntity();
         account.setNumber(accountNumber);
@@ -33,6 +25,8 @@ public class BankPersistenceServiceImpl implements BankPersistenceService {
 
     @Override
     public AccountEntity getAccount(long accountNumber) {
+        assert accountNumber >= 0;
+
         Optional<AccountEntity> accountOptional = accountRepository.findById(accountNumber);
         if (accountOptional.isEmpty()) {
             throw new AccountNotFoundPersistenceServiceException("account with number " + accountNumber + " not found");
@@ -42,6 +36,8 @@ public class BankPersistenceServiceImpl implements BankPersistenceService {
 
     @Override
     public AccountEntity updateAccountBalance(AccountEntity accountEntity, String newBalance, long timestamp) {
+        assert accountEntity != null && newBalance != null && !newBalance.isEmpty() && timestamp >= 0;
+
         accountEntity.setBalance(newBalance);
         accountEntity.setUpdatedAt(timestamp);
         accountEntity = accountRepository.save(accountEntity);

@@ -78,40 +78,6 @@ public class BankPersistenceServiceImplTest {
     }
 
     @Test
-    public void testCreateAccountNullableBalance() {
-
-        // given
-        long creationTimestamp = System.currentTimeMillis();
-
-        try {
-
-            // when
-            bankPersistenceService.createAccount(accountNumber, null, creationTimestamp);
-        } catch (IllegalArgumentException ex) {
-
-            // then
-            assertNotNull(ex);
-        }
-    }
-
-    @Test
-    public void testCreateAccountEmptyBalance() {
-
-        // given
-        long creationTimestamp = System.currentTimeMillis();
-
-        try {
-
-            // when
-            bankPersistenceService.createAccount(accountNumber, "", creationTimestamp);
-        } catch (IllegalArgumentException ex) {
-
-            // then
-            assertNotNull(ex);
-        }
-    }
-
-    @Test
     public void testCreateAccountInvalidCreationTimestamp() {
         try {
 
