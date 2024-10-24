@@ -7,6 +7,7 @@ import net.uniloftsky.markant.bank.biz.persistence.repository.WithdrawTransactio
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -52,6 +53,11 @@ public class BankPersistenceServiceImpl implements BankPersistenceService {
     }
 
     @Override
+    public List<DepositTransactionEntity> listDeposits(long accountNumber) {
+        return depositRepository.findAllByAccountNumber(accountNumber);
+    }
+
+    @Override
     public DepositTransactionEntity createDepositTransaction(UUID id, long accountNumber, String amount, long timestamp) {
         assert id != null && accountNumber > 0 && amount != null && !amount.isEmpty() && timestamp > 0;
 
@@ -62,6 +68,11 @@ public class BankPersistenceServiceImpl implements BankPersistenceService {
         depositTransaction.setTimestamp(timestamp);
         depositTransaction = depositRepository.save(depositTransaction);
         return depositTransaction;
+    }
+
+    @Override
+    public List<WithdrawTransactionEntity> listWithdrawals(long accountNumber) {
+        return withdrawRepository.findAllByAccountNumber(accountNumber);
     }
 
     @Override

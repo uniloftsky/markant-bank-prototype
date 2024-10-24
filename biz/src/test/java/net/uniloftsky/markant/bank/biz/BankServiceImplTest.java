@@ -1,8 +1,6 @@
 package net.uniloftsky.markant.bank.biz;
 
-import net.uniloftsky.markant.bank.biz.persistence.AccountEntity;
-import net.uniloftsky.markant.bank.biz.persistence.AccountNotFoundPersistenceServiceException;
-import net.uniloftsky.markant.bank.biz.persistence.BankPersistenceService;
+import net.uniloftsky.markant.bank.biz.persistence.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,10 +12,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
 
 import static net.uniloftsky.markant.bank.biz.BankServiceImpl.INITIAL_BALANCE;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
@@ -267,6 +266,94 @@ public class BankServiceImplTest {
         assertNotNull(result);
         assertEquals(number, result.getNumber());
         assertEquals(balance, result.getBalance());
+    }
+
+    @Test
+    public void testListWithdrawalTransactions() {
+
+        // given
+        WithdrawTransactionEntity firstEntity = new WithdrawTransactionEntity();
+        firstEntity.setId(UUID.randomUUID());
+        firstEntity.setAmount("100");
+        firstEntity.setTimestamp(123456L);
+        firstEntity.setAccountNumber(number);
+
+        WithdrawTransactionEntity secondEntity = new WithdrawTransactionEntity();
+        secondEntity.setId(UUID.randomUUID());
+        secondEntity.setAmount("200");
+        secondEntity.setTimestamp(123457L);
+        secondEntity.setAccountNumber(number);
+
+        // mock persistence layer to return list of withdrawals entities
+        List<WithdrawTransactionEntity> entities = List.of(firstEntity, secondEntity);
+        given(persistenceService.listWithdrawals(number)).willReturn(entities);
+
+        // when
+        List<WithdrawTransaction> result = bankService.listWithdrawalTransactions(accountNumber);
+
+        // then
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        assertEquals(entities.size(), result.size());
+
+        // testing that withdrawal transactions are ordered correctly and properties are mapped accurately
+        // the first transaction should have the properties from the second entity (most recent timestamp)
+        WithdrawTransaction firstTransaction = result.getFirst();
+        assertEquals(secondEntity.getId(), firstTransaction.getId().getId());
+        assertEquals(secondEntity.getAmount(), firstTransaction.getAmount().toPlainString());
+        assertEquals(secondEntity.getTimestamp(), firstTransaction.getTimestamp().toEpochMilli());
+        assertEquals(secondEntity.getAccountNumber(), firstTransaction.getAccountNumber().getNumber());
+
+        // the second transaction should have properties from the first entity
+        WithdrawTransaction secondTransaction = result.getLast();
+        assertEquals(firstEntity.getId(), secondTransaction.getId().getId());
+        assertEquals(firstEntity.getAmount(), secondTransaction.getAmount().toPlainString());
+        assertEquals(firstEntity.getTimestamp(), secondTransaction.getTimestamp().toEpochMilli());
+        assertEquals(firstEntity.getAccountNumber(), secondTransaction.getAccountNumber().getNumber());
+    }
+
+    @Test
+    public void testListDepositTransactions() {
+
+        // given
+        DepositTransactionEntity firstEntity = new DepositTransactionEntity();
+        firstEntity.setId(UUID.randomUUID());
+        firstEntity.setAmount("100");
+        firstEntity.setTimestamp(123456L);
+        firstEntity.setAccountNumber(number);
+
+        DepositTransactionEntity secondEntity = new DepositTransactionEntity();
+        secondEntity.setId(UUID.randomUUID());
+        secondEntity.setAmount("200");
+        secondEntity.setTimestamp(123457L);
+        secondEntity.setAccountNumber(number);
+
+        // mock persistence layer to return list of withdrawals entities
+        List<DepositTransactionEntity> entities = List.of(firstEntity, secondEntity);
+        given(persistenceService.listDeposits(number)).willReturn(entities);
+
+        // when
+        List<DepositTransaction> result = bankService.listDepositTransactions(accountNumber);
+
+        // then
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        assertEquals(entities.size(), result.size());
+
+        // testing that deposit transactions are ordered correctly and properties are mapped accurately
+        // the first transaction should have the properties from the second entity (most recent timestamp)
+        DepositTransaction firstTransaction = result.getFirst();
+        assertEquals(secondEntity.getId(), firstTransaction.getId().getId());
+        assertEquals(secondEntity.getAmount(), firstTransaction.getAmount().toPlainString());
+        assertEquals(secondEntity.getTimestamp(), firstTransaction.getTimestamp().toEpochMilli());
+        assertEquals(secondEntity.getAccountNumber(), firstTransaction.getAccountNumber().getNumber());
+
+        // the second transaction should have properties from the first entity
+        DepositTransaction secondTransaction = result.getLast();
+        assertEquals(firstEntity.getId(), secondTransaction.getId().getId());
+        assertEquals(firstEntity.getAmount(), secondTransaction.getAmount().toPlainString());
+        assertEquals(firstEntity.getTimestamp(), secondTransaction.getTimestamp().toEpochMilli());
+        assertEquals(firstEntity.getAccountNumber(), secondTransaction.getAccountNumber().getNumber());
     }
 
     /**

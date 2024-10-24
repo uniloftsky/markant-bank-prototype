@@ -1,5 +1,6 @@
 package net.uniloftsky.markant.bank.biz.persistence;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -30,6 +31,7 @@ public interface BankPersistenceService {
 
     /**
      * Update balance for an existing account.
+     * <p>
      * Method has a side effect: the provided accountEntity will be modified with a new balance and timestamp
      *
      * @param accountEntity existing account entity
@@ -39,8 +41,46 @@ public interface BankPersistenceService {
      */
     AccountEntity updateAccountBalance(AccountEntity accountEntity, String newBalance, long timestamp);
 
+    /**
+     * Retrieves a list of deposit transactions for the specified account.
+     * <p>
+     * The returned list is not sorted and reflects the order in which the transactions were saved in the database
+     *
+     * @param accountNumber account number
+     * @return list of deposit transactions
+     */
+    List<DepositTransactionEntity> listDeposits(long accountNumber);
+
+    /**
+     * Create and save a deposit transaction for a given account number and with specified amount
+     *
+     * @param id            deposit transaction ID
+     * @param accountNumber deposit owner, account number
+     * @param amount        amount of deposit
+     * @param timestamp     timestamp of the deposit transaction
+     * @return created deposit transaction entity
+     */
     DepositTransactionEntity createDepositTransaction(UUID id, long accountNumber, String amount, long timestamp);
 
+    /**
+     * Retrieves a list of withdrawal transactions for the specified account.
+     * <p>
+     * The returned list is not sorted and reflects the order in which the transactions were saved in the database
+     *
+     * @param accountNumber account number
+     * @return list of withdrawal transactions
+     */
+    List<WithdrawTransactionEntity> listWithdrawals(long accountNumber);
+
+    /**
+     * Create and save a withdrawal transaction for a given account number and with specified amount
+     *
+     * @param id            withdrawal transaction ID
+     * @param accountNumber withdrawal owner, account number
+     * @param amount        amount of withdrawal
+     * @param timestamp     timestamp of the withdrawal transaction
+     * @return created withdrawal transaction entity
+     */
     WithdrawTransactionEntity createWithdrawTransaction(UUID id, long accountNumber, String amount, long timestamp);
 
 }

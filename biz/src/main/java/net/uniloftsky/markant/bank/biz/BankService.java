@@ -1,6 +1,7 @@
 package net.uniloftsky.markant.bank.biz;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * Bank service to manage banking accounts and transactions
@@ -27,11 +28,29 @@ public interface BankService {
     BankAccount withdraw(AccountNumber accountNumber, BigDecimal amount);
 
     /**
+     * Get list of withdrawal transactions for the specified account.
+     * Transactions are sorted by timestamp in descending order (most recent first)
+     *
+     * @param accountNumber account number
+     * @return list of withdrawal transactions
+     */
+    List<WithdrawTransaction> listWithdrawalTransactions(AccountNumber accountNumber);
+
+    /**
      * Deposit the provided amount of money to account
      *
      * @param accountNumber account ID
      * @param amount        money amount
      */
     BankAccount deposit(AccountNumber accountNumber, BigDecimal amount);
+
+    /**
+     * Get list of deposit transactions for the specified account.
+     * Transactions are sorted by timestamp in descending order (most recent first)
+     *
+     * @param accountNumber account number
+     * @return list of deposit transactions
+     */
+    List<DepositTransaction> listDepositTransactions(AccountNumber accountNumber);
 
 }

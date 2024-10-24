@@ -3,15 +3,17 @@ package net.uniloftsky.markant.bank.biz;
 import net.anotheria.idbasedlock.IdBasedLock;
 import net.anotheria.idbasedlock.IdBasedLockManager;
 import net.anotheria.idbasedlock.SafeIdBasedLockManager;
-import net.uniloftsky.markant.bank.biz.persistence.AccountEntity;
-import net.uniloftsky.markant.bank.biz.persistence.AccountNotFoundPersistenceServiceException;
-import net.uniloftsky.markant.bank.biz.persistence.BankPersistenceService;
+import net.uniloftsky.markant.bank.biz.persistence.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.Clock;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 @Service
 public class BankServiceImpl implements BankService {
@@ -80,6 +82,22 @@ public class BankServiceImpl implements BankService {
     }
 
     @Override
+    public List<WithdrawTransaction> listWithdrawalTransactions(AccountNumber accountNumber) {
+        List<WithdrawTransactionEntity> entities = persistenceService.listWithdrawals(accountNumber.getNumber());
+
+        // map persistence layer entities to business layer objects
+        List<WithdrawTransaction> result = new ArrayList<>(entities.size());
+        for (WithdrawTransactionEntity entity : entities) {
+            WithdrawTransaction transaction = map(entity);
+            result.add(transaction);
+        }
+
+        // sort the result
+        result.sort(Comparator.comparing(WithdrawTransaction::getTimestamp).reversed());
+        return result;
+    }
+
+    @Override
     @Transactional
     public BankAccount deposit(AccountNumber accountNumber, BigDecimal amount) {
         validateTransactionParameters(accountNumber, amount);
@@ -103,18 +121,63 @@ public class BankServiceImpl implements BankService {
         }
     }
 
+    @Override
+    public List<DepositTransaction> listDepositTransactions(AccountNumber accountNumber) {
+        List<DepositTransactionEntity> entities = persistenceService.listDeposits(accountNumber.getNumber());
+
+        // map persistence layer entities to business layer objects
+        List<DepositTransaction> result = new ArrayList<>(entities.size());
+        for (DepositTransactionEntity entity : entities) {
+            DepositTransaction transaction = map(entity);
+            result.add(transaction);
+        }
+
+        // sort the result
+        result.sort(Comparator.comparing(DepositTransaction::getTimestamp).reversed());
+        return result;
+    }
+
     /**
-     * Maps a persistence-layer account entity to a business-layer {@link BankAccount} object.
+     * Maps a persistence layer account entity to a business-layer {@link BankAccount} object.
+     * <p>
      * This conversion translates the database representation of an account into a form
      * suitable for business layer.
      *
      * @param entity entity to map
-     * @return mapped {@link BankAccount}
+     * @return bank account
      */
     private BankAccount map(AccountEntity entity) {
         AccountNumber accountNumber = AccountNumber.of(entity.getNumber());
         BigDecimal balance = new BigDecimal(entity.getBalance());
         return new BankAccount(accountNumber, balance);
+    }
+
+    /**
+     * Maps a persistence layer deposit entity {@link DepositTransactionEntity} to a business layer {@link DepositTransaction} object.
+     *
+     * @param entity entity to map
+     * @return deposit transaction
+     */
+    private DepositTransaction map(DepositTransactionEntity entity) {
+        TransactionId transactionId = new TransactionId(entity.getId());
+        AccountNumber accountNumber = AccountNumber.of(entity.getAccountNumber());
+        BigDecimal amount = new BigDecimal(entity.getAmount());
+        Instant timestamp = Instant.ofEpochMilli(entity.getTimestamp());
+        return new DepositTransaction(transactionId, accountNumber, amount, timestamp);
+    }
+
+    /**
+     * Maps a persistence layer withdrawal entity {@link WithdrawTransactionEntity} to a business layer {@link WithdrawTransaction} object.
+     *
+     * @param entity entity to map
+     * @return withdrawal transaction
+     */
+    private WithdrawTransaction map(WithdrawTransactionEntity entity) {
+        TransactionId transactionId = new TransactionId(entity.getId());
+        AccountNumber accountNumber = AccountNumber.of(entity.getAccountNumber());
+        BigDecimal amount = new BigDecimal(entity.getAmount());
+        Instant timestamp = Instant.ofEpochMilli(entity.getTimestamp());
+        return new WithdrawTransaction(transactionId, accountNumber, amount, timestamp);
     }
 
     /**
@@ -134,6 +197,7 @@ public class BankServiceImpl implements BankService {
 
     /**
      * Retrieves an account entity by the provided accountNumber.
+     * <p>
      * If the account already exists, it will be returned.
      * Otherwise, a new account entity will be created and returned.
      *
@@ -153,6 +217,7 @@ public class BankServiceImpl implements BankService {
 
     /**
      * Create and save a deposit transaction for a given account with a specific amount.
+     * <p>
      * Method doesn't change the actual balance of the given account
      *
      * @param accountNumber        account number
@@ -166,6 +231,7 @@ public class BankServiceImpl implements BankService {
 
     /**
      * Create and save a withdrawal transaction for a given account with a specific amount.
+     * <p>
      * Method doesn't change the actual balance of the given account
      *
      * @param accountNumber        account number
