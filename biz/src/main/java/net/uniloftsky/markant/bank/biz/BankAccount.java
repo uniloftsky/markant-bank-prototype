@@ -1,8 +1,5 @@
 package net.uniloftsky.markant.bank.biz;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-
 import java.math.BigDecimal;
 import java.util.Objects;
 
@@ -14,13 +11,11 @@ public final class BankAccount {
     /**
      * Account id
      */
-    @JsonSerialize(using = AccountNumberSerializer.class)
     private final AccountNumber number;
 
     /**
      * Account balance
      */
-    @JsonSerialize(using = ToStringSerializer.class)
     private final BigDecimal balance;
 
     /**

@@ -1,11 +1,14 @@
 package net.uniloftsky.markant.bank.biz;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import java.util.Objects;
 import java.util.UUID;
 
 /**
  * Bank transaction ID
  */
+@JsonSerialize(using = TransactionIdSerializer.class)
 public final class TransactionId {
 
     private final UUID id;
