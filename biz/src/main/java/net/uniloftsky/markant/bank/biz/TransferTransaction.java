@@ -9,8 +9,14 @@ import java.util.Objects;
  */
 public final class TransferTransaction implements BankTransaction {
 
-    private static final BankTransactionType TYPE = BankTransactionType.TRANSFER;
+    /**
+     * Transaction type
+     */
+    private static final TransactionType TYPE = TransactionType.TRANSFER;
 
+    /**
+     * Transfer id
+     */
     private final TransactionId id;
 
     /**
@@ -23,10 +29,25 @@ public final class TransferTransaction implements BankTransaction {
      */
     private final AccountNumber to;
 
+    /**
+     * Amount of transfer
+     */
     private final BigDecimal amount;
 
+    /**
+     * Timestamp of transfer
+     */
     private final Instant timestamp;
 
+    /**
+     * Public constructor with arguments
+     *
+     * @param id        transfer ID
+     * @param amount    transfer amount
+     * @param timestamp transfer timestamp
+     * @param to        transfer initiator account number
+     * @param from      transfer target account number
+     */
     public TransferTransaction(TransactionId id, BigDecimal amount, Instant timestamp, AccountNumber to, AccountNumber from) {
         this.id = id;
         this.amount = amount;
@@ -59,7 +80,7 @@ public final class TransferTransaction implements BankTransaction {
     }
 
     @Override
-    public BankTransactionType getType() {
+    public TransactionType getType() {
         return TYPE;
     }
 

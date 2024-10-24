@@ -4,18 +4,44 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Objects;
 
+/**
+ * Withdrawal transaction within a single account
+ */
 public final class WithdrawTransaction implements BankTransaction {
 
-    private static final BankTransactionType TYPE = BankTransactionType.WITHDRAWAL;
+    /**
+     * Type of transaction
+     */
+    private static final TransactionType TYPE = TransactionType.WITHDRAWAL;
 
+    /**
+     * Transaction ID
+     */
     private final TransactionId id;
 
+    /**
+     * Transaction owner, Account number
+     */
     private final AccountNumber accountNumber;
 
+    /**
+     * Amount of withdrawal
+     */
     private final BigDecimal amount;
 
+    /**
+     * Timestamp of withdrawal
+     */
     private final Instant timestamp;
 
+    /**
+     * Public constructor with arguments
+     *
+     * @param id            transaction ID
+     * @param accountNumber transaction owner, account number
+     * @param amount        amount of withdrawal
+     * @param timestamp     timestamp of withdrawal
+     */
     public WithdrawTransaction(TransactionId id, AccountNumber accountNumber, BigDecimal amount, Instant timestamp) {
         this.id = id;
         this.accountNumber = accountNumber;
@@ -43,7 +69,7 @@ public final class WithdrawTransaction implements BankTransaction {
     }
 
     @Override
-    public BankTransactionType getType() {
+    public TransactionType getType() {
         return TYPE;
     }
 

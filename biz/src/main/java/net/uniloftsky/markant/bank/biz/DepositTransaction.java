@@ -4,18 +4,44 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Objects;
 
+/**
+ * Deposit transaction within a single account
+ */
 public final class DepositTransaction implements BankTransaction {
 
-    private static final BankTransactionType TYPE = BankTransactionType.DEPOSIT;
+    /**
+     * Type of transaction
+     */
+    private static final TransactionType TYPE = TransactionType.DEPOSIT;
 
+    /**
+     * Transaction ID
+     */
     private final TransactionId id;
 
+    /**
+     * Transaction owner, account number
+     */
     private final AccountNumber accountNumber;
 
+    /**
+     * Amount of deposit
+     */
     private final BigDecimal amount;
 
+    /**
+     * Timestamp of deposit
+     */
     private final Instant timestamp;
 
+    /**
+     * Public constructor with arguments
+     *
+     * @param id            transaction ID
+     * @param accountNumber transaction owner, account number
+     * @param amount        deposit amount
+     * @param timestamp     transaction timestamp. Must be defined in milliseconds
+     */
     public DepositTransaction(TransactionId id, AccountNumber accountNumber, BigDecimal amount, Instant timestamp) {
         this.id = id;
         this.accountNumber = accountNumber;
@@ -43,7 +69,7 @@ public final class DepositTransaction implements BankTransaction {
     }
 
     @Override
-    public BankTransactionType getType() {
+    public TransactionType getType() {
         return TYPE;
     }
 
