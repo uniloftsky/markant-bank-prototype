@@ -82,7 +82,7 @@ public class BankServiceImpl implements BankService {
     }
 
     @Override
-    public List<WithdrawTransaction> listWithdrawalTransactions(AccountNumber accountNumber) {
+    public List<WithdrawTransaction> listWithdrawals(AccountNumber accountNumber) {
         List<WithdrawTransactionEntity> entities = persistenceService.listWithdrawals(accountNumber.getNumber());
 
         // map persistence layer entities to business layer objects
@@ -122,7 +122,7 @@ public class BankServiceImpl implements BankService {
     }
 
     @Override
-    public List<DepositTransaction> listDepositTransactions(AccountNumber accountNumber) {
+    public List<DepositTransaction> listDeposits(AccountNumber accountNumber) {
         List<DepositTransactionEntity> entities = persistenceService.listDeposits(accountNumber.getNumber());
 
         // map persistence layer entities to business layer objects
@@ -134,6 +134,20 @@ public class BankServiceImpl implements BankService {
 
         // sort the result
         result.sort(Comparator.comparing(DepositTransaction::getTimestamp).reversed());
+        return result;
+    }
+
+    @Override
+    public List<BankTransaction> listTransactions(AccountNumber accountNumber) {
+        List<DepositTransaction> deposits = listDeposits(accountNumber);
+        List<WithdrawTransaction> withdrawals = listWithdrawals(accountNumber);
+
+        List<BankTransaction> result = new ArrayList<>(deposits.size() + withdrawals.size());
+        result.addAll(deposits);
+        result.addAll(withdrawals);
+
+        // sorting the combined result list
+        result.sort(Comparator.comparing(BankTransaction::getTimestamp).reversed());
         return result;
     }
 

@@ -269,7 +269,7 @@ public class BankServiceImplTest {
     }
 
     @Test
-    public void testListWithdrawalTransactions() {
+    public void testListWithdrawals() {
 
         // given
         WithdrawTransactionEntity firstEntity = new WithdrawTransactionEntity();
@@ -289,7 +289,7 @@ public class BankServiceImplTest {
         given(persistenceService.listWithdrawals(number)).willReturn(entities);
 
         // when
-        List<WithdrawTransaction> result = bankService.listWithdrawalTransactions(accountNumber);
+        List<WithdrawTransaction> result = bankService.listWithdrawals(accountNumber);
 
         // then
         assertNotNull(result);
@@ -313,7 +313,7 @@ public class BankServiceImplTest {
     }
 
     @Test
-    public void testListDepositTransactions() {
+    public void testListDeposits() {
 
         // given
         DepositTransactionEntity firstEntity = new DepositTransactionEntity();
@@ -333,7 +333,7 @@ public class BankServiceImplTest {
         given(persistenceService.listDeposits(number)).willReturn(entities);
 
         // when
-        List<DepositTransaction> result = bankService.listDepositTransactions(accountNumber);
+        List<DepositTransaction> result = bankService.listDeposits(accountNumber);
 
         // then
         assertNotNull(result);
@@ -354,6 +354,40 @@ public class BankServiceImplTest {
         assertEquals(firstEntity.getAmount(), secondTransaction.getAmount().toPlainString());
         assertEquals(firstEntity.getTimestamp(), secondTransaction.getTimestamp().toEpochMilli());
         assertEquals(firstEntity.getAccountNumber(), secondTransaction.getAccountNumber().getNumber());
+    }
+
+    @Test
+    public void testListTransactions() {
+
+        // given
+        // mock bank service to return deposits
+        TransactionId depositId = TransactionId.generateNew();
+        long depositTimestamp = 123456L;
+        BigDecimal depositAmount = new BigDecimal("100.50");
+        DepositTransaction deposit = new DepositTransaction(depositId, accountNumber, depositAmount, Instant.ofEpochMilli(depositTimestamp));
+        List<DepositTransaction> deposits = List.of(deposit);
+        doReturn(deposits).when(bankService).listDeposits(accountNumber);
+
+        // mock bank service to return withdrawals
+        TransactionId withdrawalId = TransactionId.generateNew();
+        long withdrawalTimestamp = 123457L;
+        BigDecimal withdrawalAmount = new BigDecimal("200.50");
+        WithdrawTransaction withdrawal = new WithdrawTransaction(withdrawalId, accountNumber, withdrawalAmount, Instant.ofEpochMilli(withdrawalTimestamp));
+        List<WithdrawTransaction> withdrawals = List.of(withdrawal);
+        doReturn(withdrawals).when(bankService).listWithdrawals(accountNumber);
+
+        // when
+        List<BankTransaction> result = bankService.listTransactions(accountNumber);
+
+        // then
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        assertEquals(withdrawals.size() + deposits.size(), result.size());
+
+        // testing that transactions are ordered by timestamp in descending order
+        // The first transaction in result list must be withdrawal (most recent timestamp)
+        TransactionId firstTransactionInResultId = result.getFirst().getId();
+        assertEquals(withdrawalId, firstTransactionInResultId);
     }
 
     /**

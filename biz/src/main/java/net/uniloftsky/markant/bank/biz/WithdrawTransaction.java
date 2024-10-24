@@ -1,5 +1,7 @@
 package net.uniloftsky.markant.bank.biz;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Objects;
@@ -7,6 +9,7 @@ import java.util.Objects;
 /**
  * Withdrawal transaction within a single account
  */
+@JsonPropertyOrder({"id", "accountNumber", "amount", "timestamp", "type"})
 public final class WithdrawTransaction implements BankTransaction {
 
     /**

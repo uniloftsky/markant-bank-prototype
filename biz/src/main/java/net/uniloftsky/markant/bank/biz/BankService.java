@@ -34,7 +34,7 @@ public interface BankService {
      * @param accountNumber account number
      * @return list of withdrawal transactions
      */
-    List<WithdrawTransaction> listWithdrawalTransactions(AccountNumber accountNumber);
+    List<WithdrawTransaction> listWithdrawals(AccountNumber accountNumber);
 
     /**
      * Deposit the provided amount of money to account
@@ -51,6 +51,15 @@ public interface BankService {
      * @param accountNumber account number
      * @return list of deposit transactions
      */
-    List<DepositTransaction> listDepositTransactions(AccountNumber accountNumber);
+    List<DepositTransaction> listDeposits(AccountNumber accountNumber);
+
+    /**
+     * Get list of all transactions (deposits, withdrawals, transfers) for the specified account.
+     * Transactions are sorted by timestamp in descending order (most recent first)
+     *
+     * @param accountNumber account number
+     * @return list of all transactions
+     */
+    List<BankTransaction> listTransactions(AccountNumber accountNumber);
 
 }
