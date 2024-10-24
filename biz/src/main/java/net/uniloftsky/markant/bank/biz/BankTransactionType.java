@@ -3,7 +3,7 @@ package net.uniloftsky.markant.bank.biz;
 /**
  * Type of the bank finance operation
  */
-public enum BankOperationType {
+public enum BankTransactionType {
 
     /**
      * Deposit operation
@@ -13,6 +13,11 @@ public enum BankOperationType {
     /**
      * Withdrawal operation
      */
-    WITHDRAWAL
+    WITHDRAWAL,
+
+    /**
+     * Transfer transaction to another account
+     */
+    TRANSFER
 
 }

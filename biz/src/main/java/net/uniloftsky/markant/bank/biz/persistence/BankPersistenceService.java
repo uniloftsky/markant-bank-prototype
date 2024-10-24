@@ -1,5 +1,7 @@
 package net.uniloftsky.markant.bank.biz.persistence;
 
+import java.util.UUID;
+
 /**
  * Bank persistence service.
  * Responsible only for saving and retrieving data from the database.
@@ -36,5 +38,9 @@ public interface BankPersistenceService {
      * @return updated account entity
      */
     AccountEntity updateAccountBalance(AccountEntity accountEntity, String newBalance, long timestamp);
+
+    DepositTransactionEntity createDepositTransaction(UUID id, long accountNumber, String amount, long timestamp);
+
+    WithdrawTransactionEntity createWithdrawTransaction(UUID id, long accountNumber, String amount, long timestamp);
 
 }

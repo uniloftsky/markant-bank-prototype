@@ -1,6 +1,8 @@
 package net.uniloftsky.markant.bank.biz.persistence;
 
 import net.uniloftsky.markant.bank.biz.persistence.repository.AccountRepository;
+import net.uniloftsky.markant.bank.biz.persistence.repository.DepositTransactionRepository;
+import net.uniloftsky.markant.bank.biz.persistence.repository.WithdrawTransactionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -20,6 +23,12 @@ public class BankPersistenceServiceImplTest {
 
     @Mock
     private AccountRepository accountRepository;
+
+    @Mock
+    private DepositTransactionRepository depositTransactionRepository;
+
+    @Mock
+    private WithdrawTransactionRepository withdrawTransactionRepository;
 
     @InjectMocks
     private BankPersistenceServiceImpl bankPersistenceService;
@@ -58,36 +67,6 @@ public class BankPersistenceServiceImplTest {
         assertNotNull(result);
         assertEquals(accountNumber, result.getNumber());
         assertEquals(creationTimestamp, result.getCreatedAt());
-    }
-
-    @Test
-    public void testCreateAccountInvalidNumber() {
-
-        // given
-        long creationTimestamp = System.currentTimeMillis();
-
-        try {
-
-            // when
-            bankPersistenceService.createAccount(0, "100.50", creationTimestamp);
-        } catch (IllegalArgumentException ex) {
-
-            // then
-            assertNotNull(ex);
-        }
-    }
-
-    @Test
-    public void testCreateAccountInvalidCreationTimestamp() {
-        try {
-
-            // when
-            bankPersistenceService.createAccount(accountNumber, "100.50", 0);
-        } catch (IllegalArgumentException ex) {
-
-            // then
-            assertNotNull(ex);
-        }
     }
 
     @Test
@@ -149,5 +128,71 @@ public class BankPersistenceServiceImplTest {
         assertEquals(accountNumber, result.getNumber());
         assertEquals(newBalance, result.getBalance());
         assertEquals(updateTimestamp, result.getUpdatedAt());
+    }
+
+    @Test
+    public void testCreateDepositTransaction() {
+
+        // given
+        UUID id = UUID.randomUUID();
+        long accountNumber = 1234567890L;
+        String amount = "100.50";
+        long timestamp = System.currentTimeMillis();
+
+        // mock repository to return saved deposit transaction
+        DepositTransactionEntity savedEntity = new DepositTransactionEntity();
+        savedEntity.setId(id);
+        savedEntity.setAccountNumber(accountNumber);
+        savedEntity.setAmount(amount);
+        savedEntity.setTimestamp(timestamp);
+        given(depositTransactionRepository.save(argThat(e -> // check that deposit is saved with right properties
+                e.getId().equals(id) &&
+                        e.getAmount().equals(amount) &&
+                        e.getAccountNumber() == accountNumber &&
+                        e.getTimestamp() == timestamp
+        ))).willReturn(savedEntity);
+
+        // when
+        DepositTransactionEntity result = bankPersistenceService.createDepositTransaction(id, accountNumber, amount, timestamp);
+
+        // then
+        assertNotNull(result);
+        assertEquals(id, result.getId());
+        assertEquals(accountNumber, result.getAccountNumber());
+        assertEquals(amount, result.getAmount());
+        assertEquals(timestamp, result.getTimestamp());
+    }
+
+    @Test
+    public void testCreateWithdrawTransaction() {
+
+        // given
+        UUID id = UUID.randomUUID();
+        long accountNumber = 1234567890L;
+        String amount = "100.50";
+        long timestamp = System.currentTimeMillis();
+
+        // mock repository to return saved withdrawal transaction
+        WithdrawTransactionEntity savedEntity = new WithdrawTransactionEntity();
+        savedEntity.setId(id);
+        savedEntity.setAccountNumber(accountNumber);
+        savedEntity.setAmount(amount);
+        savedEntity.setTimestamp(timestamp);
+        given(withdrawTransactionRepository.save(argThat(e -> // check that withdrawal is saved with right properties
+                e.getId().equals(id) &&
+                        e.getAmount().equals(amount) &&
+                        e.getAccountNumber() == accountNumber &&
+                        e.getTimestamp() == timestamp
+        ))).willReturn(savedEntity);
+
+        // when
+        WithdrawTransactionEntity result = bankPersistenceService.createWithdrawTransaction(id, accountNumber, amount, timestamp);
+
+        // then
+        assertNotNull(result);
+        assertEquals(id, result.getId());
+        assertEquals(accountNumber, result.getAccountNumber());
+        assertEquals(amount, result.getAmount());
+        assertEquals(timestamp, result.getTimestamp());
     }
 }

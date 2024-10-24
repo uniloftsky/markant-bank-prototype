@@ -65,8 +65,13 @@ public class BankServiceImpl implements BankService {
             }
 
             long transactionTimestamp = clock.instant().toEpochMilli();
-            AccountEntity updatedAccountEntity = persistenceService.updateAccountBalance(accountEntity, balanceAfterWithdrawal.toPlainString(), transactionTimestamp);
-            return map(updatedAccountEntity);
+
+            // create withdrawal transaction
+            createWithdrawTransaction(accountNumber, amount, transactionTimestamp);
+
+            // update account balance
+            account = updateBalance(accountEntity, balanceAfterWithdrawal, transactionTimestamp);
+            return account;
         } catch (AccountNotFoundPersistenceServiceException ex) {
             throw new AccountNotFoundException(ex.getMessage(), accountNumber);
         } finally {
@@ -86,8 +91,13 @@ public class BankServiceImpl implements BankService {
             BankAccount account = map(accountEntity);
             BigDecimal balanceAfterDeposit = account.getBalance().add(amount);
             long transactionTimestamp = clock.instant().toEpochMilli();
-            AccountEntity updatedAccountEntity = persistenceService.updateAccountBalance(accountEntity, balanceAfterDeposit.toPlainString(), transactionTimestamp);
-            return map(updatedAccountEntity);
+
+            // create deposit transaction
+            createDepositTransaction(accountNumber, amount, transactionTimestamp);
+
+            // update account balance
+            account = updateBalance(accountEntity, balanceAfterDeposit, transactionTimestamp);
+            return account;
         } finally {
             lock.unlock();
         }
@@ -139,6 +149,45 @@ public class BankServiceImpl implements BankService {
             long accountCreationTimestamp = clock.instant().toEpochMilli();
             return persistenceService.createAccount(accountNumber.getNumber(), INITIAL_BALANCE, accountCreationTimestamp);
         }
+    }
+
+    /**
+     * Create and save a deposit transaction for a given account with a specific amount.
+     * Method doesn't change the actual balance of the given account
+     *
+     * @param accountNumber        account number
+     * @param amount               amount of deposit
+     * @param transactionTimestamp timestamp of deposit
+     */
+    void createDepositTransaction(AccountNumber accountNumber, BigDecimal amount, long transactionTimestamp) {
+        TransactionId transactionId = TransactionId.generateNew();
+        persistenceService.createDepositTransaction(transactionId.getId(), accountNumber.getNumber(), amount.toPlainString(), transactionTimestamp);
+    }
+
+    /**
+     * Create and save a withdrawal transaction for a given account with a specific amount.
+     * Method doesn't change the actual balance of the given account
+     *
+     * @param accountNumber        account number
+     * @param amount               amount of withdrawal
+     * @param transactionTimestamp timestamp of withdrawal
+     */
+    void createWithdrawTransaction(AccountNumber accountNumber, BigDecimal amount, long transactionTimestamp) {
+        TransactionId transactionId = TransactionId.generateNew();
+        persistenceService.createWithdrawTransaction(transactionId.getId(), accountNumber.getNumber(), amount.toPlainString(), transactionTimestamp);
+    }
+
+    /**
+     * Update the balance for a specified account entity
+     *
+     * @param accountEntity        existing account entity retrieved from persistence layer
+     * @param newBalance           new balance to be set for the given account
+     * @param transactionTimestamp timestamp of balance update
+     * @return account object with an updated balance
+     */
+    BankAccount updateBalance(AccountEntity accountEntity, BigDecimal newBalance, long transactionTimestamp) {
+        AccountEntity updatedAccountEntity = persistenceService.updateAccountBalance(accountEntity, newBalance.toPlainString(), transactionTimestamp);
+        return map(updatedAccountEntity);
     }
 
     @Autowired
