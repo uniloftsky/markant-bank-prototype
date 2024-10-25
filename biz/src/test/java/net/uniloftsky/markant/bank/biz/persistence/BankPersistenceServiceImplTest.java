@@ -2,6 +2,7 @@ package net.uniloftsky.markant.bank.biz.persistence;
 
 import net.uniloftsky.markant.bank.biz.persistence.repository.AccountRepository;
 import net.uniloftsky.markant.bank.biz.persistence.repository.DepositTransactionRepository;
+import net.uniloftsky.markant.bank.biz.persistence.repository.TransferTransactionRepository;
 import net.uniloftsky.markant.bank.biz.persistence.repository.WithdrawTransactionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,6 +30,9 @@ public class BankPersistenceServiceImplTest {
 
     @Mock
     private WithdrawTransactionRepository withdrawTransactionRepository;
+
+    @Mock
+    private TransferTransactionRepository transferTransactionRepository;
 
     @InjectMocks
     private BankPersistenceServiceImpl bankPersistenceService;
@@ -141,7 +146,7 @@ public class BankPersistenceServiceImplTest {
         savedEntity.setAccountNumber(accountNumber);
         savedEntity.setAmount(amount);
         savedEntity.setTimestamp(timestamp);
-        given(depositTransactionRepository.save(argThat(e -> // check that deposit is saved with right properties
+        given(depositTransactionRepository.save(argThat(e -> // test that deposit is saved with right properties
                 e.getId().equals(id) &&
                         e.getAmount().equals(amount) &&
                         e.getAccountNumber() == accountNumber &&
@@ -160,6 +165,26 @@ public class BankPersistenceServiceImplTest {
     }
 
     @Test
+    public void testListDeposits() {
+
+        // given
+        // mocking repository to return list of deposits
+        DepositTransactionEntity entity = new DepositTransactionEntity();
+        entity.setId(UUID.randomUUID());
+        List<DepositTransactionEntity> entities = List.of(entity);
+        given(depositTransactionRepository.findAllByAccountNumber(accountNumber)).willReturn(entities);
+
+        // when
+        List<DepositTransactionEntity> result = bankPersistenceService.listDeposits(accountNumber);
+
+        // then
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        assertEquals(entities.size(), result.size());
+        assertEquals(entity.getId(), result.getFirst().getId());
+    }
+
+    @Test
     public void testCreateWithdrawTransaction() {
 
         // given
@@ -174,7 +199,7 @@ public class BankPersistenceServiceImplTest {
         savedEntity.setAccountNumber(accountNumber);
         savedEntity.setAmount(amount);
         savedEntity.setTimestamp(timestamp);
-        given(withdrawTransactionRepository.save(argThat(e -> // check that withdrawal is saved with right properties
+        given(withdrawTransactionRepository.save(argThat(e -> // test that withdrawal is saved with right properties
                 e.getId().equals(id) &&
                         e.getAmount().equals(amount) &&
                         e.getAccountNumber() == accountNumber &&
@@ -190,5 +215,80 @@ public class BankPersistenceServiceImplTest {
         assertEquals(accountNumber, result.getAccountNumber());
         assertEquals(amount, result.getAmount());
         assertEquals(timestamp, result.getTimestamp());
+    }
+
+    @Test
+    public void testListWithdrawals() {
+
+        // given
+        // mocking repository to return list of withdrawals
+        WithdrawTransactionEntity entity = new WithdrawTransactionEntity();
+        entity.setId(UUID.randomUUID());
+        List<WithdrawTransactionEntity> entities = List.of(entity);
+        given(withdrawTransactionRepository.findAllByAccountNumber(accountNumber)).willReturn(entities);
+
+        // when
+        List<WithdrawTransactionEntity> result = bankPersistenceService.listWithdrawals(accountNumber);
+
+        // then
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        assertEquals(entities.size(), result.size());
+        assertEquals(entity.getId(), result.getFirst().getId());
+    }
+
+    @Test
+    public void testCreateTransferTransaction() {
+
+        // given
+        UUID id = UUID.randomUUID();
+        long toAccountNumber = 1234567899L;
+        String amount = "100";
+        long timestamp = System.currentTimeMillis();
+
+        // mock repository to return created transfer transaction entity
+        TransferTransactionEntity entity = new TransferTransactionEntity();
+        entity.setId(id);
+        entity.setFromAccountNumber(accountNumber);
+        entity.setToAccountNumber(toAccountNumber);
+        entity.setAmount(amount);
+        entity.setTimestamp(timestamp);
+        given(transferTransactionRepository.save(argThat(e -> // test that transfer is saved with right properties
+                e.getId().equals(id) &&
+                        e.getFromAccountNumber() == accountNumber &&
+                        e.getToAccountNumber() == toAccountNumber &&
+                        e.getAmount().equals(amount) &&
+                        e.getTimestamp() == timestamp))).willReturn(entity);
+
+        // when
+        TransferTransactionEntity result = bankPersistenceService.createTransferTransaction(id, accountNumber, toAccountNumber, amount, timestamp);
+
+        // then
+        assertNotNull(result);
+        assertEquals(id, result.getId());
+        assertEquals(accountNumber, result.getFromAccountNumber());
+        assertEquals(toAccountNumber, result.getToAccountNumber());
+        assertEquals(amount, result.getAmount());
+        assertEquals(timestamp, result.getTimestamp());
+    }
+
+    @Test
+    public void testListTransfers() {
+
+        // given
+        // mock repository to return list of transfers
+        TransferTransactionEntity entity = new TransferTransactionEntity();
+        entity.setId(UUID.randomUUID());
+        List<TransferTransactionEntity> entities = List.of(entity);
+        given(transferTransactionRepository.findAllByFromOrToAccountNumber(accountNumber)).willReturn(entities);
+
+        // when
+        List<TransferTransactionEntity> result = bankPersistenceService.listTransfers(accountNumber);
+
+        // then
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        assertEquals(entities.size(), result.size());
+        assertEquals(entity.getId(), result.getFirst().getId());
     }
 }

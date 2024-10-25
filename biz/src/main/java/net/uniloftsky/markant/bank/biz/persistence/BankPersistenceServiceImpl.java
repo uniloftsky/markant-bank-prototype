@@ -7,6 +7,7 @@ import net.uniloftsky.markant.bank.biz.persistence.repository.WithdrawTransactio
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -50,7 +51,7 @@ public class BankPersistenceServiceImpl implements BankPersistenceService {
 
     @Override
     public List<DepositTransactionEntity> listDeposits(long accountNumber) {
-        return depositRepository.findAllByAccountNumber(accountNumber);
+        return new ArrayList<>(depositRepository.findAllByAccountNumber(accountNumber));
     }
 
     @Override
@@ -68,7 +69,7 @@ public class BankPersistenceServiceImpl implements BankPersistenceService {
 
     @Override
     public List<WithdrawTransactionEntity> listWithdrawals(long accountNumber) {
-        return withdrawRepository.findAllByAccountNumber(accountNumber);
+        return new ArrayList<>(withdrawRepository.findAllByAccountNumber(accountNumber));
     }
 
     @Override
@@ -86,7 +87,7 @@ public class BankPersistenceServiceImpl implements BankPersistenceService {
 
     @Override
     public List<TransferTransactionEntity> listTransfers(long accountNumber) {
-        return transferRepository.findAllByFromOrToAccountNumber(accountNumber);
+        return new ArrayList<>(transferRepository.findAllByFromOrToAccountNumber(accountNumber));
     }
 
     @Override
