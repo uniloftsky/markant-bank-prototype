@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 /**
- * Configuration for jackson mapping
+ * Configuration for Jackson
  */
 @Configuration
 public class JacksonConfig {

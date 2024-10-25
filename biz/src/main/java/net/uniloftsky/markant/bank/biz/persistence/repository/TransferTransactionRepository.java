@@ -9,6 +9,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * JPA repository for transfer transaction entities
+ */
 @Repository
 public interface TransferTransactionRepository extends JpaRepository<TransferTransactionEntity, UUID> {
 

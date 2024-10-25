@@ -51,6 +51,8 @@ public class BankPersistenceServiceImpl implements BankPersistenceService {
 
     @Override
     public List<DepositTransactionEntity> listDeposits(long accountNumber) {
+        assert accountNumber > 0;
+
         return new ArrayList<>(depositRepository.findAllByAccountNumber(accountNumber));
     }
 
@@ -69,6 +71,8 @@ public class BankPersistenceServiceImpl implements BankPersistenceService {
 
     @Override
     public List<WithdrawTransactionEntity> listWithdrawals(long accountNumber) {
+        assert accountNumber > 0;
+
         return new ArrayList<>(withdrawRepository.findAllByAccountNumber(accountNumber));
     }
 
@@ -87,6 +91,8 @@ public class BankPersistenceServiceImpl implements BankPersistenceService {
 
     @Override
     public List<TransferTransactionEntity> listTransfers(long accountNumber) {
+        assert accountNumber > 0;
+
         return new ArrayList<>(transferRepository.findAllByFromOrToAccountNumber(accountNumber));
     }
 

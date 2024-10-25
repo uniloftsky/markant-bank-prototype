@@ -8,6 +8,9 @@ import jakarta.persistence.Table;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * Persistence transfer transaction entity
+ */
 @Entity
 @Table(name = "transfer_transaction")
 public class TransferTransactionEntity {

@@ -8,6 +8,9 @@ import jakarta.persistence.Table;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * Persistence deposit transaction entity
+ */
 @Entity
 @Table(name = "deposit_transaction")
 public class DepositTransactionEntity {

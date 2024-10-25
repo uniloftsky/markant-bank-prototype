@@ -12,7 +12,6 @@ import java.time.Instant;
  */
 public class BankSerializers {
 
-
     /**
      * Serializer for {@link AccountNumber}
      */

@@ -8,12 +8,12 @@ public class ErrorResponse {
     /**
      * Exception error key
      */
-    private ErrorKey key;
+    private final ErrorKey key;
 
     /**
      * Exception message
      */
-    private String message;
+    private final String message;
 
     public static ErrorResponse of(ErrorKey key, String message) {
         return new ErrorResponse(key, message);
@@ -28,16 +28,8 @@ public class ErrorResponse {
         return key;
     }
 
-    public void setKey(ErrorKey key) {
-        this.key = key;
-    }
-
     public String getMessage() {
         return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
     }
 
     @Override

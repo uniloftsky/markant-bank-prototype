@@ -7,6 +7,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * JPA repository for withdrawal transaction entities
+ */
 @Repository
 public interface WithdrawTransactionRepository extends JpaRepository<WithdrawTransactionEntity, UUID> {
 

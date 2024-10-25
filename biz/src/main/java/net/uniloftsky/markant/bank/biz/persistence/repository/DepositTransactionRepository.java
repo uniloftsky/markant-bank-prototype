@@ -7,6 +7,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * JPA repository for deposit transaction entities
+ */
 @Repository
 public interface DepositTransactionRepository extends JpaRepository<DepositTransactionEntity, UUID> {
 

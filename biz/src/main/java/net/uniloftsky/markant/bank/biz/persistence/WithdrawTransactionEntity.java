@@ -8,6 +8,9 @@ import jakarta.persistence.Table;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * Persistence withdrawal transaction entity
+ */
 @Entity
 @Table(name = "withdraw_transaction")
 public class WithdrawTransactionEntity {

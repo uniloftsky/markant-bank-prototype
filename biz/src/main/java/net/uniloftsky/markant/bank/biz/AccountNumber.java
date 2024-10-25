@@ -14,7 +14,7 @@ public final class AccountNumber {
     private static final long ACCOUNT_NUMBER_MAX = 9_999_999_999L;
 
     /**
-     * Account id is stored as a simple 10-digits Long
+     * Account number (ID) is stored as a 10-digits long number
      */
     @JsonValue
     private final long number;
@@ -23,6 +23,12 @@ public final class AccountNumber {
         this.number = number;
     }
 
+    /**
+     * Static factory method to instantiate AccountNumber from the raw long number
+     *
+     * @param number account number
+     * @return AccountNumber object
+     */
     public static AccountNumber of(long number) {
         if (number < ACCOUNT_NUMBER_MIN || number > ACCOUNT_NUMBER_MAX) {
             throw new InvalidAccountNumberException("Invalid account number: " + number, String.valueOf(number));

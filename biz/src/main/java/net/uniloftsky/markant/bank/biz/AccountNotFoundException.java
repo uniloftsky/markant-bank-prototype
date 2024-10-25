@@ -1,7 +1,7 @@
 package net.uniloftsky.markant.bank.biz;
 
 /**
- * Exception thrown when account with specific ID cannot be found
+ * Exception thrown when account with specific number cannot be found
  */
 public class AccountNotFoundException extends BankServiceException {
 
