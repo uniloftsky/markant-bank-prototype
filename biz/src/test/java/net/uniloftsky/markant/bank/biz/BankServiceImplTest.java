@@ -459,8 +459,8 @@ public class BankServiceImplTest {
         assertNotNull(result);
         assertEquals(transferId, result.getId());
         assertEquals(transferAmount, result.getAmount());
-        assertEquals(accountNumber, result.getFrom());
-        assertEquals(targetAccountNumber, result.getTo());
+        assertEquals(accountNumber, result.getFromAccountNumber());
+        assertEquals(targetAccountNumber, result.getToAccountNumber());
         assertEquals(transferTimestamp, result.getTimestamp().toEpochMilli());
     }
 
@@ -532,16 +532,16 @@ public class BankServiceImplTest {
         assertEquals(secondEntity.getId(), firstTransaction.getId().getId());
         assertEquals(secondEntity.getAmount(), firstTransaction.getAmount().toPlainString());
         assertEquals(secondEntity.getTimestamp(), firstTransaction.getTimestamp().toEpochMilli());
-        assertEquals(secondEntity.getFromAccountNumber(), firstTransaction.getFrom().getNumber());
-        assertEquals(secondEntity.getToAccountNumber(), firstTransaction.getTo().getNumber());
+        assertEquals(secondEntity.getFromAccountNumber(), firstTransaction.getFromAccountNumber().getNumber());
+        assertEquals(secondEntity.getToAccountNumber(), firstTransaction.getToAccountNumber().getNumber());
 
         // the second transaction should have properties from the first entity
         TransferTransaction secondTransaction = result.getLast();
         assertEquals(firstEntity.getId(), secondTransaction.getId().getId());
         assertEquals(firstEntity.getAmount(), secondTransaction.getAmount().toPlainString());
         assertEquals(firstEntity.getTimestamp(), secondTransaction.getTimestamp().toEpochMilli());
-        assertEquals(firstEntity.getFromAccountNumber(), secondTransaction.getFrom().getNumber());
-        assertEquals(firstEntity.getToAccountNumber(), secondTransaction.getTo().getNumber());
+        assertEquals(firstEntity.getFromAccountNumber(), secondTransaction.getFromAccountNumber().getNumber());
+        assertEquals(firstEntity.getToAccountNumber(), secondTransaction.getToAccountNumber().getNumber());
     }
 
     @Test

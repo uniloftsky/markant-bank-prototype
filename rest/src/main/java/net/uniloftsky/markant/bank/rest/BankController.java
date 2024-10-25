@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("banking")
 @Tag(name = "banking", description = "Bank API")
 public class BankController {
 

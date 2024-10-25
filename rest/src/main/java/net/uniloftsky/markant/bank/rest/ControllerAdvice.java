@@ -81,7 +81,7 @@ public class ControllerAdvice {
     /**
      * Retrieves a localized message based on the provided message key and replaces placeholders with given variables.
      *
-     * @param messageKey the key corresponding to an entry in exceptions-description.properties
+     * @param messageKey the key corresponding to an entry in exceptions.properties
      * @param variables  values to replace placeholders, provided in the order they appear in the message
      * @return the localized message with placeholders replaced by the specified variables
      */

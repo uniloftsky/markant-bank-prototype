@@ -36,7 +36,7 @@ public enum ErrorKey {
     TRANSACTION_AMOUNT_FORMAT_ERROR("transaction.amount.format.error");
 
     /**
-     * Message key corresponding to "exceptions-description.properties"
+     * Message key corresponding to "exceptions.properties"
      */
     private final String messageKey;
 

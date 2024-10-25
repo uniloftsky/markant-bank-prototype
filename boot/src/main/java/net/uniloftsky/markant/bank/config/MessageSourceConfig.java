@@ -14,7 +14,7 @@ public class MessageSourceConfig {
     @Bean
     public MessageSource messageSource() {
         ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
-        messageSource.setBasename("classpath:exceptions-description");
+        messageSource.setBasename("classpath:exceptions");
         messageSource.setDefaultEncoding("UTF-8");
         return messageSource;
     }

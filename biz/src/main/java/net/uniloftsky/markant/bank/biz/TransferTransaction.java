@@ -22,12 +22,12 @@ public final class TransferTransaction implements BankTransaction {
     /**
      * Transfer initiator account number
      */
-    private final AccountNumber from;
+    private final AccountNumber fromAccountNumber;
 
     /**
      * Transfer target account number
      */
-    private final AccountNumber to;
+    private final AccountNumber toAccountNumber;
 
     /**
      * Amount of transfer
@@ -45,15 +45,15 @@ public final class TransferTransaction implements BankTransaction {
      * @param id        transfer ID
      * @param amount    transfer amount
      * @param timestamp transfer timestamp
-     * @param to        transfer initiator account number
-     * @param from      transfer target account number
+     * @param toAccountNumber        transfer initiator account number
+     * @param fromAccountNumber      transfer target account number
      */
-    public TransferTransaction(TransactionId id, AccountNumber from, AccountNumber to, BigDecimal amount, Instant timestamp) {
+    public TransferTransaction(TransactionId id, AccountNumber fromAccountNumber, AccountNumber toAccountNumber, BigDecimal amount, Instant timestamp) {
         this.id = id;
         this.amount = amount;
         this.timestamp = timestamp;
-        this.from = from;
-        this.to = to;
+        this.fromAccountNumber = fromAccountNumber;
+        this.toAccountNumber = toAccountNumber;
     }
 
     @Override
@@ -61,12 +61,12 @@ public final class TransferTransaction implements BankTransaction {
         return id;
     }
 
-    public AccountNumber getFrom() {
-        return from;
+    public AccountNumber getFromAccountNumber() {
+        return fromAccountNumber;
     }
 
-    public AccountNumber getTo() {
-        return to;
+    public AccountNumber getToAccountNumber() {
+        return toAccountNumber;
     }
 
     @Override
@@ -101,8 +101,8 @@ public final class TransferTransaction implements BankTransaction {
     public String toString() {
         return "{" +
                 "id=" + id +
-                ", from=" + from +
-                ", to=" + to +
+                ", from=" + fromAccountNumber +
+                ", to=" + toAccountNumber +
                 ", amount=" + amount +
                 ", timestamp=" + timestamp +
                 '}';
