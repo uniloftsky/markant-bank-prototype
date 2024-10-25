@@ -94,7 +94,7 @@ Spring Boot ermöglicht das Ausführen des Services als eigenständige JAR-Anwen
 1) Herunterladen und Installieren des JDK/JRE für
    Java21. [JDK Download](https://www.oracle.com/de/java/technologies/downloads/#java21).
 2) Herunterladen und Installieren von Maven. [Maven Download](https://maven.apache.org/download.cgi).
-3) Projektaufbau im Wurzelverzeichnis mit dem Befehl: `mvnw clean install` für UNIX
+3) Projektaufbau im Wurzelverzeichnis des Projektes mit dem Befehl: `mvnw clean install` für UNIX
    und `mvnw.cmd clean install` für Windows.
 4) Starten des Service durch Ausführen des Kommandos: `java -jar boot/webapps/markant-bank-prototype.jar`.
 5) Der Service ist unter dem Port `8080` verfügbar.
