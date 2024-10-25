@@ -3,7 +3,9 @@ package net.uniloftsky.markant.bank.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import net.uniloftsky.markant.bank.biz.*;
+import net.uniloftsky.markant.bank.biz.AccountNumber;
+import net.uniloftsky.markant.bank.biz.BankSerializers;
+import net.uniloftsky.markant.bank.biz.TransactionId;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -20,13 +22,13 @@ public class JacksonConfig {
     public ObjectMapper objectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
 
-        // register custom serializers
-        SimpleModule customSerializersModule = new SimpleModule();
-        customSerializersModule.addSerializer(AccountNumber.class, new AccountNumberSerializer());
-        customSerializersModule.addSerializer(BigDecimal.class, new ToStringSerializer());
-        customSerializersModule.addSerializer(TransactionId.class, new TransactionIdSerializer());
-        customSerializersModule.addSerializer(Instant.class, new InstantToMillisSerializer());
-        objectMapper.registerModule(customSerializersModule);
+        // register custom serializers/deserializers
+        SimpleModule module = new SimpleModule();
+        module.addSerializer(AccountNumber.class, new BankSerializers.AccountNumberSerializer());
+        module.addSerializer(BigDecimal.class, new ToStringSerializer());
+        module.addSerializer(TransactionId.class, new BankSerializers.TransactionIdSerializer());
+        module.addSerializer(Instant.class, new BankSerializers.InstantToMillisSerializer());
+        objectMapper.registerModule(module);
 
         return objectMapper;
     }

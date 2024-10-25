@@ -1,5 +1,7 @@
 package net.uniloftsky.markant.bank.biz;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import java.util.Objects;
 
 /**
@@ -14,6 +16,7 @@ public final class AccountNumber {
     /**
      * Account id is stored as a simple 10-digits Long
      */
+    @JsonValue
     private final long number;
 
     private AccountNumber(long number) {
