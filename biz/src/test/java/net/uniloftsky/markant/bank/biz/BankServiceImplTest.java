@@ -187,7 +187,7 @@ public class BankServiceImplTest {
         try {
 
             // when
-            bankService.validateTransactionParameters(null, amount);
+            bankService.validateTransactionParameters(amount, (AccountNumber) null);
         } catch (IllegalArgumentException ex) {
 
             // then
@@ -200,7 +200,7 @@ public class BankServiceImplTest {
         try {
 
             // when
-            bankService.validateTransactionParameters(accountNumber, null);
+            bankService.validateTransactionParameters(null, accountNumber);
         } catch (IllegalArgumentException ex) {
 
             // then
@@ -217,7 +217,7 @@ public class BankServiceImplTest {
         try {
 
             // when
-            bankService.validateTransactionParameters(accountNumber, amount);
+            bankService.validateTransactionParameters(amount, accountNumber);
         } catch (IllegalArgumentException ex) {
 
             // then

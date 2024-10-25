@@ -52,7 +52,7 @@ public class BankServiceImpl implements BankService {
     @Override
     @Transactional
     public BankAccount withdraw(AccountNumber accountNumber, BigDecimal amount) {
-        validateTransactionParameters(accountNumber, amount);
+        validateTransactionParameters(amount, accountNumber);
 
         IdBasedLock<AccountNumber> lock = accountLockManager.obtainLock(accountNumber);
         lock.lock();
@@ -97,7 +97,7 @@ public class BankServiceImpl implements BankService {
     @Override
     @Transactional
     public BankAccount deposit(AccountNumber accountNumber, BigDecimal amount) {
-        validateTransactionParameters(accountNumber, amount);
+        validateTransactionParameters(amount, accountNumber);
 
         IdBasedLock<AccountNumber> lock = accountLockManager.obtainLock(accountNumber);
         lock.lock();
@@ -156,6 +156,8 @@ public class BankServiceImpl implements BankService {
     @Override
     @Transactional
     public TransferTransaction transfer(AccountNumber fromAccountNumber, AccountNumber toAccountNumber, BigDecimal amount) {
+        validateTransactionParameters(amount, fromAccountNumber, toAccountNumber);
+
         IdBasedLock<AccountNumber> fromLock = accountLockManager.obtainLock(fromAccountNumber);
         IdBasedLock<AccountNumber> toLock = accountLockManager.obtainLock(toAccountNumber);
         fromLock.lock();
@@ -166,21 +168,21 @@ public class BankServiceImpl implements BankService {
             // subtract transfer amount from initiator account and update balance
             AccountEntity fromEntity = getAccountEntity(fromAccountNumber);
             BankAccount fromAccount = map(fromEntity);
-            BigDecimal balanceAfterInitiator = fromAccount.getBalance().subtract(amount);
-            if (balanceAfterInitiator.compareTo(BigDecimal.ZERO) < 0) {
+            BigDecimal initiatorBalanceAfter = fromAccount.getBalance().subtract(amount);
+            if (initiatorBalanceAfter.compareTo(BigDecimal.ZERO) < 0) {
                 throw new InsufficientBalanceException("transfer amount is greater than the current account transfer initiator balance");
             }
 
             // update balance for initiator account
-            updateBalance(fromEntity, balanceAfterInitiator, transferTimestamp);
+            updateBalance(fromEntity, initiatorBalanceAfter, transferTimestamp);
 
             // add transfer amount to target account and update balance
             AccountEntity toEntity = getAccountEntity(toAccountNumber);
             BankAccount toAccount = map(toEntity);
-            BigDecimal balanceAfterTarget = toAccount.getBalance().add(amount);
+            BigDecimal targetBalanceAfter = toAccount.getBalance().add(amount);
 
             // update balance for target account
-            updateBalance(toEntity, balanceAfterTarget, transferTimestamp);
+            updateBalance(toEntity, targetBalanceAfter, transferTimestamp);
 
             // create transfer transaction
             TransferTransactionEntity transferEntity = createTransferTransaction(fromAccountNumber, toAccountNumber, amount, transferTimestamp);
@@ -270,12 +272,16 @@ public class BankServiceImpl implements BankService {
     /**
      * Method to validate transaction parameters
      *
-     * @param accountNumber account ID
-     * @param amount        transaction amount
+     * @param amount         transaction amount
+     * @param accountNumbers list of account numbers to validate
      */
-    void validateTransactionParameters(AccountNumber accountNumber, BigDecimal amount) {
-        if (accountNumber == null) {
-            throw new IllegalArgumentException("accountId cannot be null");
+    void validateTransactionParameters(BigDecimal amount, AccountNumber... accountNumbers) {
+        if (accountNumbers != null) {
+            for (AccountNumber accountNumber : accountNumbers) {
+                if (accountNumber == null) {
+                    throw new IllegalArgumentException("accountNumber cannot be null");
+                }
+            }
         }
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("transaction amount must be greater than zero");
