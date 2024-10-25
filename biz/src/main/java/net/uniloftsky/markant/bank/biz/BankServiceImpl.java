@@ -64,9 +64,8 @@ public class BankServiceImpl implements BankService {
                 throw new InsufficientBalanceException("withdrawal amount is greater than the current account balance");
             }
 
-            long transactionTimestamp = clock.instant().toEpochMilli();
-
             // create withdrawal transaction
+            long transactionTimestamp = clock.instant().toEpochMilli();
             createWithdrawTransaction(accountNumber, amount, transactionTimestamp);
 
             // update account balance
@@ -80,7 +79,7 @@ public class BankServiceImpl implements BankService {
     @Override
     @Transactional(readOnly = true)
     public List<WithdrawTransaction> listWithdrawals(AccountNumber accountNumber) {
-        getAccountEntity(accountNumber); // get account to check if it exists, otherwise an exception will be thrown
+        getAccountEntity(accountNumber); // get account entity to check if it exists, otherwise an exception will be thrown
         List<WithdrawTransactionEntity> entities = persistenceService.listWithdrawals(accountNumber.getNumber());
 
         // map persistence layer entities to business layer objects
@@ -106,9 +105,9 @@ public class BankServiceImpl implements BankService {
             AccountEntity accountEntity = getOrCreateAccountEntity(accountNumber);
             BankAccount account = map(accountEntity);
             BigDecimal balanceAfterDeposit = account.getBalance().add(amount);
-            long transactionTimestamp = clock.instant().toEpochMilli();
 
             // create deposit transaction
+            long transactionTimestamp = clock.instant().toEpochMilli();
             createDepositTransaction(accountNumber, amount, transactionTimestamp);
 
             // update account balance
@@ -122,7 +121,7 @@ public class BankServiceImpl implements BankService {
     @Override
     @Transactional(readOnly = true)
     public List<DepositTransaction> listDeposits(AccountNumber accountNumber) {
-        getAccountEntity(accountNumber); // get account to check if it exists, otherwise an exception will be thrown
+        getAccountEntity(accountNumber); // get account entity to check if it exists, otherwise an exception will be thrown
         List<DepositTransactionEntity> entities = persistenceService.listDeposits(accountNumber.getNumber());
 
         // map persistence layer entities to business layer objects
@@ -142,10 +141,12 @@ public class BankServiceImpl implements BankService {
     public List<BankTransaction> listTransactions(AccountNumber accountNumber) {
         List<DepositTransaction> deposits = listDeposits(accountNumber);
         List<WithdrawTransaction> withdrawals = listWithdrawals(accountNumber);
+        List<TransferTransaction> transfers = listTransfers(accountNumber);
 
-        List<BankTransaction> result = new ArrayList<>(deposits.size() + withdrawals.size());
+        List<BankTransaction> result = new ArrayList<>(deposits.size() + withdrawals.size() + transfers.size());
         result.addAll(deposits);
         result.addAll(withdrawals);
+        result.addAll(transfers);
 
         // sorting the combined result list
         result.sort(Comparator.comparing(BankTransaction::getTimestamp).reversed());
@@ -193,7 +194,7 @@ public class BankServiceImpl implements BankService {
     @Override
     @Transactional(readOnly = true)
     public List<TransferTransaction> listTransfers(AccountNumber accountNumber) {
-        getAccountEntity(accountNumber); // get account to check if it exists, otherwise an exception will be thrown
+        getAccountEntity(accountNumber); // get account entity to check if it exists, otherwise an exception will be thrown
         List<TransferTransactionEntity> entities = persistenceService.listTransfers(accountNumber.getNumber());
 
         // map persistence layer entities to business layer objects

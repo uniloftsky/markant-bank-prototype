@@ -1,6 +1,9 @@
 package net.uniloftsky.markant.bank.biz;
 
-import net.uniloftsky.markant.bank.biz.persistence.*;
+import net.uniloftsky.markant.bank.biz.persistence.AccountEntity;
+import net.uniloftsky.markant.bank.biz.persistence.BankPersistenceService;
+import net.uniloftsky.markant.bank.biz.persistence.DepositTransactionEntity;
+import net.uniloftsky.markant.bank.biz.persistence.WithdrawTransactionEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -52,7 +55,7 @@ public class BankServiceImplTest {
     }
 
     @Test
-    public void testGetAccount() throws AccountNotFoundException, AccountNotFoundPersistenceServiceException {
+    public void testGetAccount() throws AccountNotFoundException {
 
         // given
         BigDecimal balance = new BigDecimal("100");
@@ -73,7 +76,7 @@ public class BankServiceImplTest {
     }
 
     @Test
-    public void testGetAccountNotFound() throws AccountNotFoundPersistenceServiceException {
+    public void testGetAccountNotFound() {
 
         // given
         // mocking persistence service behaviour to return empty optional of account entity

@@ -93,18 +93,14 @@ public class BankPersistenceServiceImplTest {
     public void testGetAccountDoesntExist() {
 
         // given
-        // mocking the repository to empty optional of account
+        // mocking the repository to return empty optional of account
         given(accountRepository.findById(accountNumber)).willReturn(Optional.empty());
 
-        try {
+        // when
+        Optional<AccountEntity> result = bankPersistenceService.getAccount(accountNumber);
 
-            // when
-            bankPersistenceService.getAccount(accountNumber);
-        } catch (AccountNotFoundPersistenceServiceException ex) {
-
-            // then
-            assertNotNull(ex);
-        }
+        // then
+        assertTrue(result.isEmpty());
     }
 
     @Test
