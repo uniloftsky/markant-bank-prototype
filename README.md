@@ -40,12 +40,12 @@ Once container is started, the service is available under default port `8080`.
 Spring Boot allows to run a service as standalone JAR application.
 
 1) Download and install JDK/JRE for Java 21.
-   [JDK Download](https://www.oracle.com/de/java/technologies/downloads/#java21)
-2) Download and install Maven. [Maven Download](https://maven.apache.org/download.cgi)
+   [JDK Download](https://www.oracle.com/de/java/technologies/downloads/#java21).
+2) Download and install Maven. [Maven Download](https://maven.apache.org/download.cgi).
 3) Build the project using the next command in root project directory: `mvnw clean install` for UNIX
    and `mvnw.cmd clean install` for Windows.
-4) Run the service using `java -jar boot/webapps/markant-bank-prototype.jar`
-5) Access the service under default port `8080`
+4) Run the service using `java -jar boot/webapps/markant-bank-prototype.jar`.
+5) Access the service under default port `8080`.
 
 # Beschreibung DE
 
@@ -65,11 +65,19 @@ Standardmäßige Zugangsdaten:
 "login": "sa"
 ```
 
+### Docker
+
+Die _.sh_ und _.bat_ Skripten zum Starten des Services unter Docker befinden sich im Ordner `docker`<br>
+
+### Swagger
+
+Die Dokumentation der RESTful-API ist unter der URL `/openapi` verfügbar.
+
 ## Starten
 
 ### Docker
 
-Die _.sh_ und _.bat_ Skripten zum Starten des Services unter Docker befinden sich im Ordner `docker`<br>
+Zum Starten des Services unter Docker verwenden die im Ordner `docker` befindlichen Skripte.<br>
 Der `bat` Ordner für Windows. Der `sh` Ordner enthält Shell-Skripte.
 
 - build-image - Skript zum Erstellen eines Docker-Image.
@@ -84,9 +92,9 @@ Wenn der Docker-Container läuft, ist der Service unter dem Port `8080` verfügb
 Spring Boot ermöglicht das Ausführen des Services als eigenständige JAR-Anwendung.
 
 1) Herunterladen und Installieren des JDK/JRE für
-   Java21. [JDK Download](https://www.oracle.com/de/java/technologies/downloads/#java21)
-2) Herunterladen und Installieren von Maven. [Maven Download](https://maven.apache.org/download.cgi)
+   Java21. [JDK Download](https://www.oracle.com/de/java/technologies/downloads/#java21).
+2) Herunterladen und Installieren von Maven. [Maven Download](https://maven.apache.org/download.cgi).
 3) Projektaufbau im Wurzelverzeichnis mit dem Befehl: `mvnw clean install` für UNIX
    und `mvnw.cmd clean install` für Windows.
-4) Starten des Service durch Ausführen des Kommandos: `java -jar boot/webapps/markant-bank-prototype.jar`
-5) Der Service ist unter dem Port `8080` verfügbar
+4) Starten des Service durch Ausführen des Kommandos: `java -jar boot/webapps/markant-bank-prototype.jar`.
+5) Der Service ist unter dem Port `8080` verfügbar.
