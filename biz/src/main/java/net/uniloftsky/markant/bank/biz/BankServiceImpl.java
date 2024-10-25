@@ -33,7 +33,7 @@ public class BankServiceImpl implements BankService {
     private Clock clock;
 
     /**
-     * Lock manager to synchronize transactions within a single account
+     * Lock manager to synchronize transactions
      */
     private IdBasedLockManager<AccountNumber> accountLockManager;
 
