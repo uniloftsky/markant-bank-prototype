@@ -14,6 +14,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class BankServiceImpl implements BankService {
@@ -44,11 +45,8 @@ public class BankServiceImpl implements BankService {
     @Override
     @Transactional(readOnly = true)
     public BankAccount getAccount(AccountNumber accountNumber) {
-        try {
-            return map(persistenceService.getAccount(accountNumber.getNumber()));
-        } catch (AccountNotFoundPersistenceServiceException notFound) {
-            throw new AccountNotFoundException(notFound.getMessage(), accountNumber);
-        }
+        AccountEntity entity = getAccountEntity(accountNumber);
+        return map(entity);
     }
 
     @Override
@@ -59,7 +57,7 @@ public class BankServiceImpl implements BankService {
         IdBasedLock<AccountNumber> lock = accountLockManager.obtainLock(accountNumber);
         lock.lock();
         try {
-            AccountEntity accountEntity = persistenceService.getAccount(accountNumber.getNumber());
+            AccountEntity accountEntity = getAccountEntity(accountNumber);
             BankAccount account = map(accountEntity);
             BigDecimal balanceAfterWithdrawal = account.getBalance().subtract(amount);
             if (balanceAfterWithdrawal.compareTo(BigDecimal.ZERO) < 0) {
@@ -74,15 +72,15 @@ public class BankServiceImpl implements BankService {
             // update account balance
             account = updateBalance(accountEntity, balanceAfterWithdrawal, transactionTimestamp);
             return account;
-        } catch (AccountNotFoundPersistenceServiceException ex) {
-            throw new AccountNotFoundException(ex.getMessage(), accountNumber);
         } finally {
             lock.unlock();
         }
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<WithdrawTransaction> listWithdrawals(AccountNumber accountNumber) {
+        getAccountEntity(accountNumber); // get account to check if it exists, otherwise an exception will be thrown
         List<WithdrawTransactionEntity> entities = persistenceService.listWithdrawals(accountNumber.getNumber());
 
         // map persistence layer entities to business layer objects
@@ -122,7 +120,9 @@ public class BankServiceImpl implements BankService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<DepositTransaction> listDeposits(AccountNumber accountNumber) {
+        getAccountEntity(accountNumber); // get account to check if it exists, otherwise an exception will be thrown
         List<DepositTransactionEntity> entities = persistenceService.listDeposits(accountNumber.getNumber());
 
         // map persistence layer entities to business layer objects
@@ -138,6 +138,7 @@ public class BankServiceImpl implements BankService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<BankTransaction> listTransactions(AccountNumber accountNumber) {
         List<DepositTransaction> deposits = listDeposits(accountNumber);
         List<WithdrawTransaction> withdrawals = listWithdrawals(accountNumber);
@@ -148,6 +149,62 @@ public class BankServiceImpl implements BankService {
 
         // sorting the combined result list
         result.sort(Comparator.comparing(BankTransaction::getTimestamp).reversed());
+        return result;
+    }
+
+    @Override
+    @Transactional
+    public TransferTransaction transfer(AccountNumber fromAccountNumber, AccountNumber toAccountNumber, BigDecimal amount) {
+        IdBasedLock<AccountNumber> fromLock = accountLockManager.obtainLock(fromAccountNumber);
+        IdBasedLock<AccountNumber> toLock = accountLockManager.obtainLock(toAccountNumber);
+        fromLock.lock();
+        toLock.lock();
+        try {
+            long transferTimestamp = clock.instant().toEpochMilli();
+
+            // subtract transfer amount from initiator account and update balance
+            AccountEntity fromEntity = getAccountEntity(fromAccountNumber);
+            BankAccount fromAccount = map(fromEntity);
+            BigDecimal balanceAfterInitiator = fromAccount.getBalance().subtract(amount);
+            if (balanceAfterInitiator.compareTo(BigDecimal.ZERO) < 0) {
+                throw new InsufficientBalanceException("transfer amount is greater than the current account transfer initiator balance");
+            }
+
+            // update balance for initiator account
+            updateBalance(fromEntity, balanceAfterInitiator, transferTimestamp);
+
+            // add transfer amount to target account and update balance
+            AccountEntity toEntity = getAccountEntity(toAccountNumber);
+            BankAccount toAccount = map(toEntity);
+            BigDecimal balanceAfterTarget = toAccount.getBalance().add(amount);
+
+            // update balance for target account
+            updateBalance(toEntity, balanceAfterTarget, transferTimestamp);
+
+            // create transfer transaction
+            TransferTransactionEntity transferEntity = createTransferTransaction(fromAccountNumber, toAccountNumber, amount, transferTimestamp);
+            return map(transferEntity);
+        } finally {
+            toLock.unlock();
+            fromLock.unlock();
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TransferTransaction> listTransfers(AccountNumber accountNumber) {
+        getAccountEntity(accountNumber); // get account to check if it exists, otherwise an exception will be thrown
+        List<TransferTransactionEntity> entities = persistenceService.listTransfers(accountNumber.getNumber());
+
+        // map persistence layer entities to business layer objects
+        List<TransferTransaction> result = new ArrayList<>(entities.size());
+        for (TransferTransactionEntity entity : entities) {
+            TransferTransaction transaction = map(entity);
+            result.add(transaction);
+        }
+
+        // sort the result
+        result.sort(Comparator.comparing(TransferTransaction::getTimestamp).reversed());
         return result;
     }
 
@@ -195,6 +252,21 @@ public class BankServiceImpl implements BankService {
     }
 
     /**
+     * Maps a persistence layer transfer entity {@link TransferTransactionEntity} to a business layer {@link TransferTransaction} object
+     *
+     * @param entity entity to map
+     * @return transfer transaction
+     */
+    private TransferTransaction map(TransferTransactionEntity entity) {
+        TransactionId transactionId = new TransactionId(entity.getId());
+        AccountNumber fromAccountNumber = AccountNumber.of(entity.getFromAccountNumber());
+        AccountNumber toAccountNumber = AccountNumber.of(entity.getToAccountNumber());
+        BigDecimal amount = new BigDecimal(entity.getAmount());
+        Instant timestamp = Instant.ofEpochMilli(entity.getTimestamp());
+        return new TransferTransaction(transactionId, amount, timestamp, fromAccountNumber, toAccountNumber);
+    }
+
+    /**
      * Method to validate transaction parameters
      *
      * @param accountNumber account ID
@@ -210,7 +282,7 @@ public class BankServiceImpl implements BankService {
     }
 
     /**
-     * Retrieves an account entity by the provided accountNumber.
+     * Retrieves an account entity by the provided accountNumber or creates a new one.
      * <p>
      * If the account already exists, it will be returned.
      * Otherwise, a new account entity will be created and returned.
@@ -219,13 +291,32 @@ public class BankServiceImpl implements BankService {
      * @return existing or freshly created account with provided number
      */
     AccountEntity getOrCreateAccountEntity(AccountNumber accountNumber) {
-        try {
-            return persistenceService.getAccount(accountNumber.getNumber());
-        } catch (AccountNotFoundPersistenceServiceException ex) {
+        Optional<AccountEntity> optionalAccountEntity = persistenceService.getAccount(accountNumber.getNumber());
+        if (optionalAccountEntity.isPresent()) {
+            return optionalAccountEntity.get();
+        } else {
 
             // If not found, create a new account
             long accountCreationTimestamp = clock.instant().toEpochMilli();
             return persistenceService.createAccount(accountNumber.getNumber(), INITIAL_BALANCE, accountCreationTimestamp);
+        }
+    }
+
+    /**
+     * Retrieves an account entity by the provided accountNumber.
+     * <p>
+     * If the account cannot be found, an exception will be thrown.
+     *
+     * @param accountNumber account number
+     * @return account entity
+     * @throws AccountNotFoundException if account entity by the given account number doesn't exist
+     */
+    AccountEntity getAccountEntity(AccountNumber accountNumber) {
+        Optional<AccountEntity> optionalAccountEntity = persistenceService.getAccount(accountNumber.getNumber());
+        if (optionalAccountEntity.isPresent()) {
+            return optionalAccountEntity.get();
+        } else {
+            throw new AccountNotFoundException("account by number " + accountNumber + " doesn't exist", accountNumber);
         }
     }
 
@@ -255,6 +346,19 @@ public class BankServiceImpl implements BankService {
     void createWithdrawTransaction(AccountNumber accountNumber, BigDecimal amount, long transactionTimestamp) {
         TransactionId transactionId = TransactionId.generateNew();
         persistenceService.createWithdrawTransaction(transactionId.getId(), accountNumber.getNumber(), amount.toPlainString(), transactionTimestamp);
+    }
+
+    /**
+     * Create and save a transfer transaction with a specific amount
+     *
+     * @param fromAccountNumber    transfer initiator account
+     * @param toAccountNumber      transfer target amount
+     * @param amount               amount of transfer
+     * @param transactionTimestamp timestamp of transfer
+     */
+    TransferTransactionEntity createTransferTransaction(AccountNumber fromAccountNumber, AccountNumber toAccountNumber, BigDecimal amount, long transactionTimestamp) {
+        TransactionId transactionId = TransactionId.generateNew();
+        return persistenceService.createTransferTransaction(transactionId.getId(), fromAccountNumber.getNumber(), toAccountNumber.getNumber(), amount.toPlainString(), transactionTimestamp);
     }
 
     /**

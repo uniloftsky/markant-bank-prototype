@@ -48,12 +48,12 @@ public final class TransferTransaction implements BankTransaction {
      * @param to        transfer initiator account number
      * @param from      transfer target account number
      */
-    public TransferTransaction(TransactionId id, BigDecimal amount, Instant timestamp, AccountNumber to, AccountNumber from) {
+    public TransferTransaction(TransactionId id, BigDecimal amount, Instant timestamp, AccountNumber from, AccountNumber to) {
         this.id = id;
         this.amount = amount;
         this.timestamp = timestamp;
-        this.to = to;
         this.from = from;
+        this.to = to;
     }
 
     @Override

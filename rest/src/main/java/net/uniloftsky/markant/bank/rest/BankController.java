@@ -28,21 +28,33 @@ public class BankController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @PostMapping("accounts/{accountNumber}/transactions/withdrawals")
-    public ResponseEntity<BankAccount> withdraw(@PathVariable("accountNumber") long accountNumber, @RequestBody BalanceUpdateRequest request) throws InsufficientBalanceException, AccountNotFoundException {
-        BankAccount result = bankService.withdraw(AccountNumber.of(accountNumber), request.getAmount());
-        return new ResponseEntity<>(result, HttpStatus.OK);
-    }
-
     @GetMapping("accounts/{accountNumber}/transactions/deposits")
     public ResponseEntity<List<DepositTransaction>> listDeposits(@PathVariable("accountNumber") long accountNumber) throws AccountNotFoundException {
         List<DepositTransaction> result = bankService.listDeposits(AccountNumber.of(accountNumber));
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
+    @PostMapping("accounts/{accountNumber}/transactions/withdrawals")
+    public ResponseEntity<BankAccount> withdraw(@PathVariable("accountNumber") long accountNumber, @RequestBody BalanceUpdateRequest request) throws InsufficientBalanceException, AccountNotFoundException {
+        BankAccount result = bankService.withdraw(AccountNumber.of(accountNumber), request.getAmount());
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
     @GetMapping("accounts/{accountNumber}/transactions/withdrawals")
     public ResponseEntity<List<WithdrawTransaction>> listWithdrawals(@PathVariable("accountNumber") long accountNumber) throws AccountNotFoundException {
         List<WithdrawTransaction> result = bankService.listWithdrawals(AccountNumber.of(accountNumber));
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @PostMapping("accounts/{accountNumber}/transactions/transfers")
+    public ResponseEntity<TransferTransaction> transfer(@PathVariable("accountNumber") long fromAccountNumber, @RequestBody TransferRequest request) {
+        TransferTransaction result = bankService.transfer(AccountNumber.of(fromAccountNumber), request.getTargetAccountNumber(), request.getAmount());
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @GetMapping("accounts/{accountNumber}/transactions/transfers")
+    public ResponseEntity<List<TransferTransaction>> listTransfers(@PathVariable("accountNumber") long accountNumber) throws AccountNotFoundException {
+        List<TransferTransaction> result = bankService.listTransfers(AccountNumber.of(accountNumber));
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 

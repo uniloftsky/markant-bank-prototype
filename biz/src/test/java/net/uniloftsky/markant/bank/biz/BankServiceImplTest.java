@@ -13,12 +13,14 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static net.uniloftsky.markant.bank.biz.BankServiceImpl.INITIAL_BALANCE;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 public class BankServiceImplTest {
@@ -59,7 +61,7 @@ public class BankServiceImplTest {
         AccountEntity entity = new AccountEntity();
         entity.setNumber(number);
         entity.setBalance(balance.toPlainString());
-        given(persistenceService.getAccount(number)).willReturn(entity);
+        given(persistenceService.getAccount(number)).willReturn(Optional.of(entity));
 
         // when
         BankAccount result = bankService.getAccount(accountNumber);
@@ -74,8 +76,8 @@ public class BankServiceImplTest {
     public void testGetAccountNotFound() throws AccountNotFoundPersistenceServiceException {
 
         // given
-        // mocking persistence service behaviour to throw AccountNotFoundPersistenceServiceException
-        doThrow(new AccountNotFoundPersistenceServiceException()).when(persistenceService).getAccount(number);
+        // mocking persistence service behaviour to return empty optional of account entity
+        given(persistenceService.getAccount(number)).willReturn(Optional.empty());
 
         try {
 
@@ -100,7 +102,7 @@ public class BankServiceImplTest {
         AccountEntity accountEntity = new AccountEntity();
         accountEntity.setNumber(number);
         accountEntity.setBalance(accountBalance.toPlainString());
-        given(persistenceService.getAccount(number)).willReturn(accountEntity);
+        given(persistenceService.getAccount(number)).willReturn(Optional.of(accountEntity));
 
         // mocking the clock to return a predefined timestamp for the transaction
         long transactionTimestamp = System.currentTimeMillis();
@@ -130,7 +132,7 @@ public class BankServiceImplTest {
         AccountEntity accountEntity = new AccountEntity();
         accountEntity.setNumber(number);
         accountEntity.setBalance(accountBalance.toPlainString());
-        given(persistenceService.getAccount(number)).willReturn(accountEntity);
+        given(persistenceService.getAccount(number)).willReturn(Optional.of(accountEntity));
 
         try {
 
@@ -230,7 +232,7 @@ public class BankServiceImplTest {
 
         String balance = "100";
         entity.setBalance(balance);
-        given(persistenceService.getAccount(number)).willReturn(entity);
+        given(persistenceService.getAccount(number)).willReturn(Optional.of(entity));
 
         // when
         AccountEntity result = bankService.getOrCreateAccountEntity(accountNumber);
@@ -246,7 +248,8 @@ public class BankServiceImplTest {
 
         // given
         // throw exception to simulate that requested account doesn't exist in persistence
-        doThrow(new AccountNotFoundPersistenceServiceException()).when(persistenceService).getAccount(number);
+        // return empty account entity optional from persistence
+        given(persistenceService.getAccount(number)).willReturn(Optional.empty());
 
         // mocking the clock to return predefined timestamp for account creation
         long accountCreationTimestamp = System.currentTimeMillis();
@@ -272,6 +275,9 @@ public class BankServiceImplTest {
     public void testListWithdrawals() {
 
         // given
+        // mock bank service to return account entity
+        doReturn(new AccountEntity()).when(bankService).getAccountEntity(accountNumber);
+
         WithdrawTransactionEntity firstEntity = new WithdrawTransactionEntity();
         firstEntity.setId(UUID.randomUUID());
         firstEntity.setAmount("100");
@@ -316,6 +322,9 @@ public class BankServiceImplTest {
     public void testListDeposits() {
 
         // given
+        // mock bank service to return account entity
+        doReturn(new AccountEntity()).when(bankService).getAccountEntity(accountNumber);
+
         DepositTransactionEntity firstEntity = new DepositTransactionEntity();
         firstEntity.setId(UUID.randomUUID());
         firstEntity.setAmount("100");

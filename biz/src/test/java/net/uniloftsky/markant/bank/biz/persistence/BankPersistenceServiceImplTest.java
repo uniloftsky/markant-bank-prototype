@@ -13,8 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.given;
 
@@ -81,12 +80,13 @@ public class BankPersistenceServiceImplTest {
         given(accountRepository.findById(accountNumber)).willReturn(Optional.of(entity));
 
         // when
-        AccountEntity result = bankPersistenceService.getAccount(accountNumber);
+        Optional<AccountEntity> result = bankPersistenceService.getAccount(accountNumber);
 
         // then
         assertNotNull(result);
-        assertEquals(accountNumber, result.getNumber());
-        assertEquals(balance, result.getBalance());
+        assertTrue(result.isPresent());
+        assertEquals(accountNumber, result.get().getNumber());
+        assertEquals(balance, result.get().getBalance());
     }
 
     @Test

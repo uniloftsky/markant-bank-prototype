@@ -32,14 +32,10 @@ public class BankPersistenceServiceImpl implements BankPersistenceService {
     }
 
     @Override
-    public AccountEntity getAccount(long accountNumber) {
+    public Optional<AccountEntity> getAccount(long accountNumber) {
         assert accountNumber > 0;
 
-        Optional<AccountEntity> accountOptional = accountRepository.findById(accountNumber);
-        if (accountOptional.isEmpty()) {
-            throw new AccountNotFoundPersistenceServiceException("account with number " + accountNumber + " not found");
-        }
-        return accountOptional.get();
+        return accountRepository.findById(accountNumber);
     }
 
     @Override
@@ -86,6 +82,25 @@ public class BankPersistenceServiceImpl implements BankPersistenceService {
         withdrawTransaction.setTimestamp(timestamp);
         withdrawTransaction = withdrawRepository.save(withdrawTransaction);
         return withdrawTransaction;
+    }
+
+    @Override
+    public List<TransferTransactionEntity> listTransfers(long accountNumber) {
+        return transferRepository.findAllByFromOrToAccountNumber(accountNumber);
+    }
+
+    @Override
+    public TransferTransactionEntity createTransferTransaction(UUID id, long fromAccountNumber, long toAccountNumber, String amount, long timestamp) {
+        assert id != null && fromAccountNumber > 0 && toAccountNumber > 0 && amount != null && !amount.isEmpty() && timestamp > 0;
+
+        TransferTransactionEntity transferTransaction = new TransferTransactionEntity();
+        transferTransaction.setId(id);
+        transferTransaction.setFromAccountNumber(fromAccountNumber);
+        transferTransaction.setToAccountNumber(toAccountNumber);
+        transferTransaction.setAmount(amount);
+        transferTransaction.setTimestamp(timestamp);
+        transferTransaction = transferRepository.save(transferTransaction);
+        return transferTransaction;
     }
 
     @Autowired

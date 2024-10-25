@@ -1,11 +1,14 @@
 package net.uniloftsky.markant.bank.biz;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 
 /**
  * Class that represents a bank account
  */
+@JsonPropertyOrder({"number", "balance"})
 public final class BankAccount {
 
     /**

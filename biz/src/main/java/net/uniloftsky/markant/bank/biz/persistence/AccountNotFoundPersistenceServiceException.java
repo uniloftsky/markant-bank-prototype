@@ -5,14 +5,26 @@ package net.uniloftsky.markant.bank.biz.persistence;
  */
 public class AccountNotFoundPersistenceServiceException extends BankPersistenceServiceException {
 
-    public AccountNotFoundPersistenceServiceException() {
+    /**
+     * Account number
+     */
+    private final long accountNumber;
+
+    public AccountNotFoundPersistenceServiceException(long accountNumber) {
+        this.accountNumber = accountNumber;
     }
 
-    public AccountNotFoundPersistenceServiceException(String message) {
+    public AccountNotFoundPersistenceServiceException(String message, long accountNumber) {
         super(message);
+        this.accountNumber = accountNumber;
     }
 
-    public AccountNotFoundPersistenceServiceException(String message, Throwable cause) {
+    public AccountNotFoundPersistenceServiceException(String message, Throwable cause, long accountNumber) {
         super(message, cause);
+        this.accountNumber = accountNumber;
+    }
+
+    public long getAccountNumber() {
+        return accountNumber;
     }
 }

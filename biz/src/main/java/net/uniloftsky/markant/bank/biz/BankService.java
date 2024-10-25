@@ -33,6 +33,7 @@ public interface BankService {
      *
      * @param accountNumber account number
      * @return list of withdrawal transactions
+     * @throws AccountNotFoundException if account by provided number cannot be found
      */
     List<WithdrawTransaction> listWithdrawals(AccountNumber accountNumber);
 
@@ -50,6 +51,7 @@ public interface BankService {
      *
      * @param accountNumber account number
      * @return list of deposit transactions
+     * @throws AccountNotFoundException if account by provided number cannot be found
      */
     List<DepositTransaction> listDeposits(AccountNumber accountNumber);
 
@@ -59,7 +61,28 @@ public interface BankService {
      *
      * @param accountNumber account number
      * @return list of all transactions
+     * @throws AccountNotFoundException if account by provided number cannot be found
      */
     List<BankTransaction> listTransactions(AccountNumber accountNumber);
+
+    /**
+     * Transfer money from one account to another
+     *
+     * @param fromAccountNumber transfer initiator account number
+     * @param toAccountNumber   transfer target account number
+     * @param amount            transfer amount of money
+     * @return transfer transaction
+     */
+    TransferTransaction transfer(AccountNumber fromAccountNumber, AccountNumber toAccountNumber, BigDecimal amount);
+
+    /**
+     * Get list of transfer transactions for the specified account.
+     * Transactions are sorted by timestamp in descending order (most recent first).
+     *
+     * @param accountNumber account number
+     * @return list of transfer
+     * @throws AccountNotFoundException if account by provided number cannot be found
+     */
+    List<TransferTransaction> listTransfers(AccountNumber accountNumber);
 
 }

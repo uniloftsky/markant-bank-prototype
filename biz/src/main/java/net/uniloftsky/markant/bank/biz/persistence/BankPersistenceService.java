@@ -1,6 +1,7 @@
 package net.uniloftsky.markant.bank.biz.persistence;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -21,13 +22,12 @@ public interface BankPersistenceService {
     AccountEntity createAccount(long accountNumber, String balance, long creationTimestamp);
 
     /**
-     * Get account by account number
+     * Get optional account by account number
      *
      * @param accountNumber account number
-     * @return account entity
-     * @throws AccountNotFoundPersistenceServiceException in case if account by the provided ID cannot be found
+     * @return optional account entity
      */
-    AccountEntity getAccount(long accountNumber);
+    Optional<AccountEntity> getAccount(long accountNumber);
 
     /**
      * Update balance for an existing account.
@@ -82,5 +82,27 @@ public interface BankPersistenceService {
      * @return created withdrawal transaction entity
      */
     WithdrawTransactionEntity createWithdrawTransaction(UUID id, long accountNumber, String amount, long timestamp);
+
+    /**
+     * Retrieves a list of transfer transactions for the specified account.
+     * <p>
+     * The specified account can be either the transfer initiator or the transfer target.
+     *
+     * @param accountNumber account number
+     * @return list of transfer transactions
+     */
+    List<TransferTransactionEntity> listTransfers(long accountNumber);
+
+    /**
+     * Create and save a transfer transaction from one account to another and with specified amount
+     *
+     * @param id                transfer transaction ID
+     * @param fromAccountNumber transfer initiator
+     * @param toAccountNumber   transfer target
+     * @param amount            amount of transfer
+     * @param timestamp         timestamp of the transfer transaction
+     * @return created transfer transaction entity
+     */
+    TransferTransactionEntity createTransferTransaction(UUID id, long fromAccountNumber, long toAccountNumber, String amount, long timestamp);
 
 }
