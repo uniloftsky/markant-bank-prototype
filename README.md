@@ -65,6 +65,8 @@ Standardmäßige Zugangsdaten:
 "login": "sa"
 ```
 
+## Starten
+
 ### Docker
 
 Die _.sh_ und _.bat_ Skripten zum Starten des Services unter Docker befinden sich im Ordner `docker`<br>
