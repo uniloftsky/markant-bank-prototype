@@ -25,7 +25,7 @@ public class BankController {
     @PostMapping("accounts/{accountNumber}/transactions/deposits")
     public ResponseEntity<BankAccount> deposit(@PathVariable("accountNumber") long accountNumber, @RequestBody BalanceUpdateRequest request) {
         BankAccount result = bankService.deposit(AccountNumber.of(accountNumber), request.getAmount());
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        return new ResponseEntity<>(result, HttpStatus.CREATED);
     }
 
     @GetMapping("accounts/{accountNumber}/transactions/deposits")
@@ -37,7 +37,7 @@ public class BankController {
     @PostMapping("accounts/{accountNumber}/transactions/withdrawals")
     public ResponseEntity<BankAccount> withdraw(@PathVariable("accountNumber") long accountNumber, @RequestBody BalanceUpdateRequest request) throws InsufficientBalanceException, AccountNotFoundException {
         BankAccount result = bankService.withdraw(AccountNumber.of(accountNumber), request.getAmount());
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        return new ResponseEntity<>(result, HttpStatus.CREATED);
     }
 
     @GetMapping("accounts/{accountNumber}/transactions/withdrawals")
@@ -49,7 +49,7 @@ public class BankController {
     @PostMapping("accounts/{accountNumber}/transactions/transfers")
     public ResponseEntity<TransferTransaction> transfer(@PathVariable("accountNumber") long fromAccountNumber, @RequestBody TransferRequest request) {
         TransferTransaction result = bankService.transfer(AccountNumber.of(fromAccountNumber), request.getTargetAccountNumber(), request.getAmount());
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        return new ResponseEntity<>(result, HttpStatus.CREATED);
     }
 
     @GetMapping("accounts/{accountNumber}/transactions/transfers")
