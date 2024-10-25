@@ -48,7 +48,7 @@ public final class TransferTransaction implements BankTransaction {
      * @param to        transfer initiator account number
      * @param from      transfer target account number
      */
-    public TransferTransaction(TransactionId id, BigDecimal amount, Instant timestamp, AccountNumber from, AccountNumber to) {
+    public TransferTransaction(TransactionId id, AccountNumber from, AccountNumber to, BigDecimal amount, Instant timestamp) {
         this.id = id;
         this.amount = amount;
         this.timestamp = timestamp;

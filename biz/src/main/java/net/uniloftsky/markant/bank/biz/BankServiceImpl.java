@@ -264,7 +264,7 @@ public class BankServiceImpl implements BankService {
         AccountNumber toAccountNumber = AccountNumber.of(entity.getToAccountNumber());
         BigDecimal amount = new BigDecimal(entity.getAmount());
         Instant timestamp = Instant.ofEpochMilli(entity.getTimestamp());
-        return new TransferTransaction(transactionId, amount, timestamp, fromAccountNumber, toAccountNumber);
+        return new TransferTransaction(transactionId, fromAccountNumber, toAccountNumber, amount, timestamp);
     }
 
     /**

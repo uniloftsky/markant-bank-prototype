@@ -1,9 +1,6 @@
 package net.uniloftsky.markant.bank.biz;
 
-import net.uniloftsky.markant.bank.biz.persistence.AccountEntity;
-import net.uniloftsky.markant.bank.biz.persistence.BankPersistenceService;
-import net.uniloftsky.markant.bank.biz.persistence.DepositTransactionEntity;
-import net.uniloftsky.markant.bank.biz.persistence.WithdrawTransactionEntity;
+import net.uniloftsky.markant.bank.biz.persistence.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,7 +18,10 @@ import java.util.UUID;
 
 import static net.uniloftsky.markant.bank.biz.BankServiceImpl.INITIAL_BALANCE;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
@@ -388,18 +388,189 @@ public class BankServiceImplTest {
         List<WithdrawTransaction> withdrawals = List.of(withdrawal);
         doReturn(withdrawals).when(bankService).listWithdrawals(accountNumber);
 
+        // mock bank service to return transfers
+        TransactionId transferId = TransactionId.generateNew();
+        AccountNumber toAccountNumber = AccountNumber.of(9999999999L);
+        long transferTimestamp = 123455L;
+        BigDecimal transferAmount = new BigDecimal("100.50");
+        TransferTransaction transfer = new TransferTransaction(transferId, accountNumber, toAccountNumber, transferAmount, Instant.ofEpochMilli(transferTimestamp));
+        List<TransferTransaction> transfers = List.of(transfer);
+        doReturn(transfers).when(bankService).listTransfers(accountNumber);
+
         // when
         List<BankTransaction> result = bankService.listTransactions(accountNumber);
 
         // then
         assertNotNull(result);
         assertFalse(result.isEmpty());
-        assertEquals(withdrawals.size() + deposits.size(), result.size());
+        assertEquals(withdrawals.size() + deposits.size() + transfers.size(), result.size());
 
         // testing that transactions are ordered by timestamp in descending order
         // The first transaction in result list must be withdrawal (most recent timestamp)
         TransactionId firstTransactionInResultId = result.getFirst().getId();
         assertEquals(withdrawalId, firstTransactionInResultId);
+    }
+
+    @Test
+    public void testTransfer() {
+
+        // given
+        long transferTimestamp = 123456L;
+        mockClockInstant(transferTimestamp);
+        BigDecimal transferAmount = new BigDecimal("50");
+
+        // mock initiator account entity
+        AccountEntity initiatorEntity = new AccountEntity();
+        initiatorEntity.setNumber(number);
+        BigDecimal initiatorBalance = new BigDecimal("100.50");
+        initiatorEntity.setBalance(initiatorBalance.toPlainString());
+        doReturn(initiatorEntity).when(bankService).getAccountEntity(accountNumber);
+        mockAccountWithUpdatedBalance(initiatorEntity, initiatorBalance.subtract(transferAmount), transferTimestamp);
+
+        // mock target account entity
+        long targetNumber = 9999999999L;
+        AccountNumber targetAccountNumber = AccountNumber.of(targetNumber);
+        AccountEntity targetEntity = new AccountEntity();
+        targetEntity.setNumber(targetNumber);
+        BigDecimal targetBalance = new BigDecimal("200.50");
+        targetEntity.setBalance(targetBalance.toPlainString());
+        doReturn(targetEntity).when(bankService).getAccountEntity(targetAccountNumber);
+        mockAccountWithUpdatedBalance(targetEntity, targetBalance.add(transferAmount), transferTimestamp);
+
+        // mock created transfer transaction entity
+        TransferTransactionEntity createdTransactionEntity = new TransferTransactionEntity();
+
+        TransactionId transferId = TransactionId.generateNew();
+        createdTransactionEntity.setId(transferId.getId());
+        createdTransactionEntity.setFromAccountNumber(number);
+        createdTransactionEntity.setToAccountNumber(targetNumber);
+        createdTransactionEntity.setAmount(transferAmount.toPlainString());
+        createdTransactionEntity.setTimestamp(transferTimestamp);
+
+        doReturn(createdTransactionEntity).when(bankService).createTransferTransaction(accountNumber, targetAccountNumber, transferAmount, transferTimestamp);
+
+        // when
+        TransferTransaction result = bankService.transfer(accountNumber, targetAccountNumber, transferAmount);
+
+        // then
+        then(bankService).should().updateBalance(initiatorEntity, initiatorBalance.subtract(transferAmount), transferTimestamp);
+        then(bankService).should().updateBalance(targetEntity, targetBalance.add(transferAmount), transferTimestamp);
+
+        assertNotNull(result);
+        assertEquals(transferId, result.getId());
+        assertEquals(transferAmount, result.getAmount());
+        assertEquals(accountNumber, result.getFrom());
+        assertEquals(targetAccountNumber, result.getTo());
+        assertEquals(transferTimestamp, result.getTimestamp().toEpochMilli());
+    }
+
+    @Test
+    public void testTransferInsufficientBalance() {
+
+        // given
+        long transferTimestamp = 123456L;
+        AccountNumber targetAccountNumber = AccountNumber.of(9999999999L);
+        mockClockInstant(transferTimestamp);
+        BigDecimal transferAmount = new BigDecimal("50");
+
+        // mock initiator account entity
+        AccountEntity initiatorEntity = new AccountEntity();
+        initiatorEntity.setNumber(number);
+        BigDecimal initiatorBalance = new BigDecimal("25");
+        initiatorEntity.setBalance(initiatorBalance.toPlainString());
+        doReturn(initiatorEntity).when(bankService).getAccountEntity(accountNumber);
+
+
+        // when
+        try {
+            bankService.transfer(accountNumber, targetAccountNumber, transferAmount);
+        } catch (InsufficientBalanceException ex) {
+
+            // then
+            assertNotNull(ex);
+        }
+    }
+
+    @Test
+    public void testListTransfers() {
+
+        // given
+        AccountNumber targetAccountNumber = AccountNumber.of(9999999999L);
+
+        // mock bank service to return account entity
+        doReturn(new AccountEntity()).when(bankService).getAccountEntity(accountNumber);
+
+        TransferTransactionEntity firstEntity = new TransferTransactionEntity();
+        firstEntity.setId(UUID.randomUUID());
+        firstEntity.setAmount("100");
+        firstEntity.setTimestamp(123456L);
+        firstEntity.setFromAccountNumber(number);
+        firstEntity.setToAccountNumber(targetAccountNumber.getNumber());
+
+        TransferTransactionEntity secondEntity = new TransferTransactionEntity();
+        secondEntity.setId(UUID.randomUUID());
+        secondEntity.setAmount("200");
+        secondEntity.setTimestamp(123457L);
+        secondEntity.setFromAccountNumber(number);
+        secondEntity.setToAccountNumber(targetAccountNumber.getNumber());
+
+        // mock persistence layer to return list of transfer entities
+        List<TransferTransactionEntity> entities = List.of(firstEntity, secondEntity);
+        given(persistenceService.listTransfers(number)).willReturn(entities);
+
+        // when
+        List<TransferTransaction> result = bankService.listTransfers(accountNumber);
+
+        // then
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        assertEquals(entities.size(), result.size());
+
+        // testing that transfer transactions are ordered correctly and properties are mapped accurately
+        // the first transaction should have the properties from the second entity (most recent timestamp)
+        TransferTransaction firstTransaction = result.getFirst();
+        assertEquals(secondEntity.getId(), firstTransaction.getId().getId());
+        assertEquals(secondEntity.getAmount(), firstTransaction.getAmount().toPlainString());
+        assertEquals(secondEntity.getTimestamp(), firstTransaction.getTimestamp().toEpochMilli());
+        assertEquals(secondEntity.getFromAccountNumber(), firstTransaction.getFrom().getNumber());
+        assertEquals(secondEntity.getToAccountNumber(), firstTransaction.getTo().getNumber());
+
+        // the second transaction should have properties from the first entity
+        TransferTransaction secondTransaction = result.getLast();
+        assertEquals(firstEntity.getId(), secondTransaction.getId().getId());
+        assertEquals(firstEntity.getAmount(), secondTransaction.getAmount().toPlainString());
+        assertEquals(firstEntity.getTimestamp(), secondTransaction.getTimestamp().toEpochMilli());
+        assertEquals(firstEntity.getFromAccountNumber(), secondTransaction.getFrom().getNumber());
+        assertEquals(firstEntity.getToAccountNumber(), secondTransaction.getTo().getNumber());
+    }
+
+    @Test
+    public void testCreateTransferTransaction() {
+
+        // given
+        AccountNumber targetAccountNumber = AccountNumber.of(9999999999L);
+        BigDecimal amount = new BigDecimal("100");
+        long transferTimestamp = System.currentTimeMillis();
+
+        // mocking persistence layer to create transfer transaction
+        TransferTransactionEntity entity = new TransferTransactionEntity();
+        entity.setFromAccountNumber(number);
+        entity.setToAccountNumber(targetAccountNumber.getNumber());
+        entity.setAmount(amount.toPlainString());
+        entity.setTimestamp(transferTimestamp);
+
+        given(persistenceService.createTransferTransaction(any(UUID.class), eq(number), eq(targetAccountNumber.getNumber()), eq(amount.toPlainString()), eq(transferTimestamp)))
+                .willReturn(entity);
+
+        // when
+        TransferTransactionEntity result = bankService.createTransferTransaction(accountNumber, targetAccountNumber, amount, transferTimestamp);
+
+        // then
+        assertNotNull(result);
+        assertEquals(amount.toPlainString(), result.getAmount());
+        assertEquals(transferTimestamp, result.getTimestamp());
+        assertEquals(number, result.getFromAccountNumber());
+        assertEquals(targetAccountNumber.getNumber(), result.getToAccountNumber());
     }
 
     /**
