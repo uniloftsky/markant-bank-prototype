@@ -78,7 +78,7 @@ Die Dokumentation der RESTful-API ist unter der URL `/openapi` verfügbar.
 ### Docker
 
 Zum Starten des Services unter Docker verwenden die im Ordner `docker` befindlichen Skripte.<br>
-Der `bat` Ordner für Windows. Der `sh` Ordner enthält Shell-Skripte.
+Der Ordner `bat` ist für Windows. Der Ordner `sh` enthält Shell-Skripte.
 
 - build-image - Skript zum Erstellen eines Docker-Image.
 - start-container - Skript zum Starten eines Docker-Containers mit den Standardoptionen.
