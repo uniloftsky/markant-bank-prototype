@@ -49,9 +49,9 @@ Spring Boot allows to run a service as standalone JAR application.
 
 # Beschreibung DE
 
-Der Prototyp einer RESTful-Webschnittstelle für eine Bankanwendung wurde unter Verwendung von Java 21 und Spring Boot
+Der Prototyp einer RESTful-Webschnittstelle für eine Bankanwendung wurde unter Verwendung von **Java 21** und **Spring Boot**
 entwickelt.
-Die Persistenzschicht wurde mithilfe von JPA umgesetzt. Die H2-Datenbank wurde aufgrund ihrer einfachen Konfiguration
+Die Persistenzschicht wurde mithilfe von **JPA** umgesetzt. Die **H2-Datenbank** wurde aufgrund ihrer einfachen Konfiguration
 und schnellen Bereitstellung gewählt.
 
 ### Datenbank
