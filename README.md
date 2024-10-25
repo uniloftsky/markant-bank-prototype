@@ -47,7 +47,7 @@ Spring Boot allows to run a service as standalone JAR application.
 4) Run the service using `java -jar boot/webapps/markant-bank-prototype.jar`
 5) Access the service under default port `8080`
 
-# Description DE
+# Beschreibung DE
 
 Der Prototyp einer RESTful-Webschnittstelle für eine Bankanwendung wurde unter Verwendung von Java 21 und Spring Boot
 entwickelt.
