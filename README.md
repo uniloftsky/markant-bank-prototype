@@ -32,7 +32,10 @@ If you would like to run this service via Docker use the scripts in `docker` fol
 - build-image - script to build the docker image
 - start-container - script to run the container with default parameters.
 
-To run the service first build the docker image and then use the corresponding for your system start-container script.
+If you're using a UNIX system, give executable permissions to scripts: `chmod +x build-image.sh`
+and `chmod +x start-container.sh`.<br>
+To run the service first build the docker image using the `build-image` script and then use the
+corresponding `start-container` script.
 Once container is started, the service is available under default port `8080`.
 
 ### Standalone
@@ -49,10 +52,10 @@ Spring Boot allows to run a service as standalone JAR application.
 
 # Beschreibung DE
 
-Der Prototyp einer RESTful-Webschnittstelle für eine Bankanwendung wurde unter Verwendung von **Java 21** und **Spring Boot**
-entwickelt.
-Die Persistenzschicht wurde mithilfe von **JPA** umgesetzt. Die **H2-Datenbank** wurde aufgrund ihrer einfachen Konfiguration
-und schnellen Bereitstellung gewählt.
+Der Prototyp einer RESTful-Webschnittstelle für eine Bankanwendung wurde unter Verwendung von **Java 21** und **Spring
+Boot** entwickelt.
+Die Persistenzschicht wurde mithilfe von **JPA** umgesetzt. Die **H2-Datenbank** wurde aufgrund ihrer einfachen
+Konfiguration und schnellen Bereitstellung gewählt.
 
 ### Datenbank
 
@@ -83,9 +86,12 @@ Der Ordner `bat` ist für Windows. Der Ordner `sh` enthält Shell-Skripte.
 - build-image - Skript zum Erstellen eines Docker-Image.
 - start-container - Skript zum Starten eines Docker-Containers mit den Standardoptionen.
 
-Zum Starten des Services zunächst das Docker-Image erstellen und anschließend das für das Betriebssystem entsprechende
-Skript ausführen.
-Wenn der Docker-Container läuft, ist der Service unter dem Port `8080` verfügbar.
+Falls ein UNIX-System verwendet wird, erteilen Sie den Skripten die Ausführungserlaubnis: `chmod +x build-image.sh`
+und `chmod +x start-container.sh`.<br>
+Zum Starten des Services zunächst das Docker-Image erstellen mithilfe des Skriptes `build-image` und anschließend das
+entsprechende
+Skript `start-container` ausführen, um den Docker-Container zu starten.
+Sobald der Docker-Container läuft, ist der Service unter dem Port `8080` verfügbar.
 
 ### Standalone
 
