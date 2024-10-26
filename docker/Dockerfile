@@ -7,4 +7,4 @@ ENV JAVA_OPTIONS=""
 
 EXPOSE 8080
 
-CMD java -jar  $JAVA_OPTIONS markant-bank-prototype.jar
+CMD java -jar $JAVA_OPTIONS markant-bank-prototype.jar
