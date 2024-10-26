@@ -32,8 +32,9 @@ If you would like to run this service via Docker use the scripts in `docker` fol
 - build-image - script to build the docker image
 - start-container - script to run the container with default parameters.
 
-If you're using a UNIX system, give executable permissions to scripts: `chmod +x build-image.sh`
-and `chmod +x start-container.sh`.<br>
+If you're using a UNIX system, give executable permissions to
+scripts: `chmod +x build-image.sh`, `chmod +x start-container.sh` and `chmod +x mvnw` (_mvnw_ is located in the project
+root directory).<br>
 To run the service first build the docker image using the `build-image` script and then use the
 corresponding `start-container` script.
 Once container is started, the service is available under default port `8080`.
@@ -86,8 +87,9 @@ Der Ordner `bat` ist für Windows. Der Ordner `sh` enthält Shell-Skripte.
 - build-image - Skript zum Erstellen eines Docker-Image.
 - start-container - Skript zum Starten eines Docker-Containers mit den Standardoptionen.
 
-Falls ein UNIX-System verwendet wird, erteilen Sie den Skripten die Ausführungserlaubnis: `chmod +x build-image.sh`
-und `chmod +x start-container.sh`.<br>
+Falls ein UNIX-System verwendet wird, erteilen Sie den Skripten die
+Ausführungserlaubnis: `chmod +x build-image.sh`, `chmod +x start-container.sh` und `chmod +x mvnw` (_mvnw_ liegt im
+Wurzelverzeichnis des Projektes).<br>
 Zum Starten des Services zunächst das Docker-Image erstellen mithilfe des Skriptes `build-image` und anschließend das
 entsprechende
 Skript `start-container` ausführen, um den Docker-Container zu starten.
