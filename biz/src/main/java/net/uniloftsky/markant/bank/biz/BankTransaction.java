@@ -1,5 +1,7 @@
 package net.uniloftsky.markant.bank.biz;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 
@@ -35,6 +37,7 @@ public interface BankTransaction {
      *
      * @return timestamp when the transaction occurred
      */
+    @Schema(type = "integer", format = "int64", description = "Timestamp in milliseconds")
     Instant getTimestamp();
 
 }

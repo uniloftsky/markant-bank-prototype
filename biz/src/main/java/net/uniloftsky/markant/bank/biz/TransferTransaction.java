@@ -1,5 +1,7 @@
 package net.uniloftsky.markant.bank.biz;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Objects;
@@ -37,6 +39,7 @@ public final class TransferTransaction implements BankTransaction {
     /**
      * Timestamp of transfer
      */
+    @Schema(type = "integer", format = "int64", description = "Timestamp in milliseconds")
     private final Instant timestamp;
 
     /**

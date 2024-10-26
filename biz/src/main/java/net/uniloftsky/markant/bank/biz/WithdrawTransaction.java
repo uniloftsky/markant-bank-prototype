@@ -1,6 +1,7 @@
 package net.uniloftsky.markant.bank.biz;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -35,6 +36,7 @@ public final class WithdrawTransaction implements BankTransaction {
     /**
      * Timestamp of withdrawal
      */
+    @Schema(type = "integer", format = "int64", description = "Timestamp in milliseconds")
     private final Instant timestamp;
 
     /**

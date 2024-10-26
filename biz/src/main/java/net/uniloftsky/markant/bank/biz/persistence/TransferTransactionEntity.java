@@ -22,9 +22,6 @@ public class TransferTransactionEntity {
     @Column(name = "amount")
     private String amount;
 
-    @Column(name = "type")
-    private String type;
-
     @Column(name = "timestamp")
     private long timestamp;
 
@@ -48,14 +45,6 @@ public class TransferTransactionEntity {
 
     public void setAmount(String amount) {
         this.amount = amount;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
 
     public long getTimestamp() {
@@ -100,7 +89,6 @@ public class TransferTransactionEntity {
         return "{" +
                 "id=" + id +
                 ", amount='" + amount + '\'' +
-                ", type='" + type + '\'' +
                 ", timestamp=" + timestamp +
                 ", fromAccountNumber=" + fromAccountNumber +
                 ", toAccountNumber=" + toAccountNumber +
